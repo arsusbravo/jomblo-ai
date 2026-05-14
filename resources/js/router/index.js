@@ -1,0 +1,81 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const routes = [
+    // Public
+    {
+        path: '/',
+        component: () => import('@/layouts/PublicLayout.vue'),
+        children: [
+            { path: '', name: 'home', component: () => import('@/pages/public/HomePage.vue') },
+            { path: 'about', name: 'about', component: () => import('@/pages/public/AboutPage.vue') },
+            { path: 'privacy', name: 'privacy', component: () => import('@/pages/public/PrivacyPage.vue') },
+            { path: 'terms', name: 'terms', component: () => import('@/pages/public/TermsPage.vue') },
+            { path: 'cookies', name: 'cookies', component: () => import('@/pages/public/CookiePolicyPage.vue') },
+        ],
+    },
+
+    // Auth
+    {
+        path: '/',
+        component: () => import('@/layouts/GuestLayout.vue'),
+        meta: { requiresGuest: true },
+        children: [
+            { path: 'login', name: 'login', component: () => import('@/pages/auth/LoginPage.vue') },
+            { path: 'register', name: 'register', component: () => import('@/pages/auth/RegisterPage.vue') },
+        ],
+    },
+
+    // User dashboard
+    {
+        path: '/dashboard',
+        component: () => import('@/layouts/UserLayout.vue'),
+        meta: { requiresAuth: true },
+        children: [
+            { path: '', name: 'user.dashboard', component: () => import('@/pages/user/DashboardPage.vue') },
+            { path: 'profile', name: 'user.profile', component: () => import('@/pages/user/ProfilePage.vue') },
+            { path: 'characters', name: 'user.characters', component: () => import('@/pages/user/CharactersPage.vue') },
+            { path: 'chat/:characterId', name: 'user.chat', component: () => import('@/pages/user/ChatPage.vue') },
+        ],
+    },
+
+    // Admin dashboard
+    {
+        path: '/admin',
+        component: () => import('@/layouts/AdminLayout.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true },
+        children: [
+            { path: '', name: 'admin.dashboard', component: () => import('@/pages/admin/DashboardPage.vue') },
+            { path: 'users', name: 'admin.users', component: () => import('@/pages/admin/UsersPage.vue') },
+            { path: 'characters', name: 'admin.characters', component: () => import('@/pages/admin/CharactersPage.vue') },
+        ],
+    },
+
+    // Fallback
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+]
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
+})
+
+router.beforeEach(async (to) => {
+    const auth = useAuthStore()
+
+    await auth.fetchUser()
+
+    if (to.meta.requiresGuest && auth.isAuthenticated) {
+        return auth.isAdmin ? { name: 'admin.dashboard' } : { name: 'user.dashboard' }
+    }
+
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        return { name: 'login' }
+    }
+
+    if (to.meta.requiresAdmin && !auth.isAdmin) {
+        return { name: 'user.dashboard' }
+    }
+})
+
+export default router

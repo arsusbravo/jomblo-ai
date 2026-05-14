@@ -1,0 +1,261 @@
+<template>
+  <div class="relative flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden">
+
+    <!-- Background — covers entire chat container, never scrolls -->
+    <div class="absolute inset-0 pointer-events-none">
+      <img v-if="character?.avatar_url" :src="character.avatar_url" class="w-full h-full object-cover" />
+      <div v-if="character?.avatar_url" class="absolute inset-0 bg-white/30 backdrop-blur-[3px]" />
+      <div v-else class="w-full h-full bg-gray-50" />
+    </div>
+
+    <!-- Header -->
+    <div class="relative bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4 flex items-center gap-4 shrink-0">
+      <button @click="router.push({ name: 'user.characters' })" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <div v-if="character" class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full overflow-hidden shrink-0 cursor-pointer ring-2 ring-transparent hover:ring-indigo-400 transition-all"
+          :class="character.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'"
+          @click="character.avatar_url && (photoOpen = true)"
+        >
+          <img v-if="character.avatar_url" :src="character.avatar_url" :alt="character.name" class="w-full h-full object-cover" />
+          <span v-else class="w-full h-full flex items-center justify-center text-xl">
+            {{ character.gender === 'female' ? '👩' : '👨' }}
+          </span>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900">{{ character.name }}</p>
+          <p class="text-xs text-pink-400">{{ character.gender === 'female' ? i18n.__('user.chat_honey') : i18n.__('user.chat_babe') }}</p>
+        </div>
+      </div>
+      <div v-else class="h-5 w-32 bg-gray-100 rounded animate-pulse" />
+    </div>
+
+    <!-- Messages -->
+    <div ref="messagesEl" class="relative flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div class="space-y-4">
+        <div v-if="loadingConversation" class="text-center text-gray-400 pt-8">{{ i18n.__('user.chat_loading') }}</div>
+
+        <template v-else>
+          <!-- Opening card -->
+          <div v-if="!messages.length" class="flex justify-center pt-8">
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg px-8 py-6 text-center max-w-xs">
+              <p class="text-5xl mb-4">{{ character?.gender === 'female' ? '👩' : '👨' }}</p>
+              <p class="font-semibold text-gray-800 text-base">{{ i18n.__('user.chat_say_hi', { name: character?.name }) }}</p>
+              <p class="text-sm text-gray-500 mt-1">{{ i18n.__('user.chat_start') }}</p>
+            </div>
+          </div>
+
+          <div
+            v-for="msg in messages"
+            :key="msg.id"
+            class="flex"
+            :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
+          >
+            <!-- AI avatar -->
+            <div v-if="msg.role === 'assistant'" class="w-8 h-8 rounded-full overflow-hidden shrink-0 mr-2 mt-1"
+              :class="character?.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'"
+            >
+              <img v-if="character?.avatar_url" :src="character.avatar_url" :alt="character?.name" class="w-full h-full object-cover" />
+              <span v-else class="w-full h-full flex items-center justify-center text-sm">
+                {{ character?.gender === 'female' ? '👩' : '👨' }}
+              </span>
+            </div>
+
+            <div
+              class="max-w-[70%] px-4 py-3 rounded-2xl text-sm leading-relaxed"
+              :class="msg.role === 'user'
+                ? 'bg-indigo-600 text-white rounded-br-sm'
+                : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm'"
+            >
+              {{ msg.content }}
+            </div>
+          </div>
+
+          <!-- Typing indicator -->
+          <div v-if="sending" class="flex justify-start">
+            <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 mr-2"
+              :class="character?.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'"
+            >
+              <img v-if="character?.avatar_url" :src="character.avatar_url" class="w-full h-full object-cover" />
+              <span v-else class="w-full h-full flex items-center justify-center text-sm">
+                {{ character?.gender === 'female' ? '👩' : '👨' }}
+              </span>
+            </div>
+            <div class="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1">
+              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms" />
+              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms" />
+              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms" />
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="relative bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 py-4 shrink-0">
+      <form @submit.prevent="sendMessage" class="flex items-end gap-3">
+        <textarea
+          v-model="input"
+          @keydown.enter.exact.prevent="sendMessage"
+          rows="1"
+          :placeholder="creditsRemaining === 0 ? i18n.__('user.credits_empty') : i18n.__('user.chat_placeholder')"
+          :disabled="sending || creditsRemaining === 0"
+          class="flex-1 resize-none px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm disabled:opacity-60 max-h-32 overflow-y-auto"
+          style="field-sizing: content"
+          @click="creditsRemaining === 0 && (showPricing = true)"
+        />
+        <button
+          type="submit"
+          :disabled="!input.trim() || sending || creditsRemaining === 0"
+          class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+        >
+          <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </form>
+      <div class="flex items-center justify-between mt-2 px-1">
+        <p class="text-xs text-gray-400">{{ i18n.__('user.chat_hint') }}</p>
+        <p class="text-xs font-medium" :class="creditsColor">
+          {{ creditsRemaining === 0
+            ? i18n.__('user.credits_empty')
+            : i18n.__('user.credits_remaining', { count: creditsRemaining }) }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Pricing modal -->
+    <PricingModal :show="showPricing" @close="showPricing = false" />
+
+    <!-- Photo lightbox -->
+    <Transition
+      enter-active-class="transition duration-150 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-100 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="photoOpen"
+        class="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+        @click="photoOpen = false"
+      >
+        <img
+          :src="character.avatar_url"
+          :alt="character.name"
+          class="max-h-full max-w-full rounded-2xl shadow-2xl object-contain"
+          @click.stop
+        />
+        <button
+          @click="photoOpen = false"
+          class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </Transition>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from '@/api'
+import { useI18nStore } from '@/stores/i18n'
+import { useAuthStore } from '@/stores/auth'
+import PricingModal from '@/components/PricingModal.vue'
+
+const route = useRoute()
+const router = useRouter()
+const i18n = useI18nStore()
+const auth = useAuthStore()
+
+const character = ref(null)
+const conversation = ref(null)
+const messages = ref([])
+const input = ref('')
+const sending = ref(false)
+const loadingConversation = ref(true)
+const messagesEl = ref(null)
+const photoOpen = ref(false)
+const showPricing = ref(false)
+
+const creditsRemaining = ref(auth.user?.message_credits ?? 0)
+
+watch(creditsRemaining, (val) => {
+  if (val === 0) showPricing.value = true
+}, { immediate: true })
+
+const creditsColor = computed(() => {
+  if (creditsRemaining.value === 0) return 'text-red-500'
+  if (creditsRemaining.value <= 5) return 'text-orange-500'
+  return 'text-gray-400'
+})
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get(`/api/user/conversations/${route.params.characterId}`)
+    conversation.value = data.conversation
+    character.value = data.conversation.character
+    messages.value = data.conversation.messages
+  } finally {
+    loadingConversation.value = false
+    await nextTick()
+    scrollToBottom()
+  }
+})
+
+async function sendMessage() {
+  const content = input.value.trim()
+  if (!content || sending.value) return
+
+  if (creditsRemaining.value === 0) {
+    showPricing.value = true
+    return
+  }
+
+  input.value = ''
+  sending.value = true
+
+  messages.value.push({ id: Date.now(), role: 'user', content })
+  await nextTick()
+  scrollToBottom()
+
+  try {
+    const { data } = await api.post(
+      `/api/user/conversations/${conversation.value.id}/messages`,
+      { content }
+    )
+    const idx = messages.value.findLastIndex(m => m.role === 'user')
+    if (idx !== -1) messages.value[idx] = data.user_message
+    messages.value.push(data.ai_message)
+    creditsRemaining.value = data.credits_remaining
+    if (auth.user) auth.user.message_credits = data.credits_remaining
+  } catch (e) {
+    if (e.response?.status === 402) {
+      creditsRemaining.value = 0
+      if (auth.user) auth.user.message_credits = 0
+      showPricing.value = true
+    }
+    messages.value.pop()
+    input.value = content
+  } finally {
+    sending.value = false
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+function scrollToBottom() {
+  if (messagesEl.value) {
+    messagesEl.value.scrollTop = messagesEl.value.scrollHeight
+  }
+}
+</script>

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm uninstall *)",
+      "Bash(ls ~/.config/herd/config/valet/Certificates/ 2>/dev/null | grep -i jomblo | head -5)",
+      "Read(//Users/arsus/.config/herd/config/valet/**)",
+      "Bash(curl -s -i -k 'https://jombloai.test/api/user' -H 'Accept: application/json')",
+      "Bash(curl -sk 'https://jombloai.test/api/user' -H 'Accept: application/json')",
+      "Bash(xxd)",
+      "Bash(curl -sk 'https://jombloai.test/api/home' -H 'Accept: application/json')",
+      "Bash(curl -sk 'https://jombloai.test/api/nonexistent' -H 'Accept: application/json' -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sk 'https://jombloai.test/api/user' -H 'Accept: application/json' -o /dev/null -w \"HTTP %{http_code}\\\\nContent-Type: %{content_type}\\\\n\")"
+    ]
+  }
+}

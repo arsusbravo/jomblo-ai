@@ -1,0 +1,263 @@
+{
+  "_LanguageSwitcher-DAJ3Lq5o.js": {
+    "file": "assets/LanguageSwitcher-DAJ3Lq5o.js",
+    "name": "LanguageSwitcher",
+    "imports": [
+      "resources/js/main.js"
+    ]
+  },
+  "_PricingModal-aP2XeSsV.js": {
+    "file": "assets/PricingModal-aP2XeSsV.js",
+    "name": "PricingModal",
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "__plugin-vue_export-helper-jUItB9cv.js": {
+    "file": "assets/_plugin-vue_export-helper-jUItB9cv.js",
+    "name": "_plugin-vue_export-helper"
+  },
+  "_api-BVDSIBNH.js": {
+    "file": "assets/api-BVDSIBNH.js",
+    "name": "api"
+  },
+  "_pinia-DiRY3s4C.js": {
+    "file": "assets/pinia-DiRY3s4C.js",
+    "name": "pinia",
+    "imports": [
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "_runtime-core.esm-bundler-DtViT_Xz.js": {
+    "file": "assets/runtime-core.esm-bundler-DtViT_Xz.js",
+    "name": "runtime-core.esm-bundler"
+  },
+  "resources/js/layouts/AdminLayout.vue": {
+    "file": "assets/AdminLayout-D-Pn1--w.js",
+    "name": "AdminLayout",
+    "src": "resources/js/layouts/AdminLayout.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/layouts/GuestLayout.vue": {
+    "file": "assets/GuestLayout-4UJMgI8s.js",
+    "name": "GuestLayout",
+    "src": "resources/js/layouts/GuestLayout.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/layouts/PublicLayout.vue": {
+    "file": "assets/PublicLayout-DcRERpcW.js",
+    "name": "PublicLayout",
+    "src": "resources/js/layouts/PublicLayout.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_LanguageSwitcher-DAJ3Lq5o.js"
+    ]
+  },
+  "resources/js/layouts/UserLayout.vue": {
+    "file": "assets/UserLayout-Cou4qr-b.js",
+    "name": "UserLayout",
+    "src": "resources/js/layouts/UserLayout.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_LanguageSwitcher-DAJ3Lq5o.js",
+      "_PricingModal-aP2XeSsV.js"
+    ]
+  },
+  "resources/js/main.js": {
+    "file": "assets/main-B5_3zwiv.js",
+    "name": "main",
+    "src": "resources/js/main.js",
+    "isEntry": true,
+    "imports": [
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_pinia-DiRY3s4C.js",
+      "_api-BVDSIBNH.js"
+    ],
+    "dynamicImports": [
+      "resources/js/layouts/PublicLayout.vue",
+      "resources/js/pages/public/HomePage.vue",
+      "resources/js/pages/public/AboutPage.vue",
+      "resources/js/pages/public/PrivacyPage.vue",
+      "resources/js/pages/public/TermsPage.vue",
+      "resources/js/pages/public/CookiePolicyPage.vue",
+      "resources/js/layouts/GuestLayout.vue",
+      "resources/js/pages/auth/LoginPage.vue",
+      "resources/js/pages/auth/RegisterPage.vue",
+      "resources/js/layouts/UserLayout.vue",
+      "resources/js/pages/user/DashboardPage.vue",
+      "resources/js/pages/user/ProfilePage.vue",
+      "resources/js/pages/user/CharactersPage.vue",
+      "resources/js/pages/user/ChatPage.vue",
+      "resources/js/layouts/AdminLayout.vue",
+      "resources/js/pages/admin/DashboardPage.vue",
+      "resources/js/pages/admin/UsersPage.vue",
+      "resources/js/pages/admin/CharactersPage.vue"
+    ],
+    "css": [
+      "assets/main-66-Ow2Sx.css"
+    ]
+  },
+  "resources/js/pages/admin/CharactersPage.vue": {
+    "file": "assets/CharactersPage-DPldIzaK.js",
+    "name": "CharactersPage",
+    "src": "resources/js/pages/admin/CharactersPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/admin/DashboardPage.vue": {
+    "file": "assets/DashboardPage-f7nlrhJ0.js",
+    "name": "DashboardPage",
+    "src": "resources/js/pages/admin/DashboardPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/admin/UsersPage.vue": {
+    "file": "assets/UsersPage-DNGWhZbz.js",
+    "name": "UsersPage",
+    "src": "resources/js/pages/admin/UsersPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/auth/LoginPage.vue": {
+    "file": "assets/LoginPage-DqJ0_pwq.js",
+    "name": "LoginPage",
+    "src": "resources/js/pages/auth/LoginPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/auth/RegisterPage.vue": {
+    "file": "assets/RegisterPage-CfjHgztP.js",
+    "name": "RegisterPage",
+    "src": "resources/js/pages/auth/RegisterPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/public/AboutPage.vue": {
+    "file": "assets/AboutPage-piyHbYKR.js",
+    "name": "AboutPage",
+    "src": "resources/js/pages/public/AboutPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/public/CookiePolicyPage.vue": {
+    "file": "assets/CookiePolicyPage-mgABNa2c.js",
+    "name": "CookiePolicyPage",
+    "src": "resources/js/pages/public/CookiePolicyPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "__plugin-vue_export-helper-jUItB9cv.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/public/HomePage.vue": {
+    "file": "assets/HomePage-CKFqJZ-C.js",
+    "name": "HomePage",
+    "src": "resources/js/pages/public/HomePage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/public/PrivacyPage.vue": {
+    "file": "assets/PrivacyPage-CSu-_OGq.js",
+    "name": "PrivacyPage",
+    "src": "resources/js/pages/public/PrivacyPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "__plugin-vue_export-helper-jUItB9cv.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/public/TermsPage.vue": {
+    "file": "assets/TermsPage-Qpi1rSgH.js",
+    "name": "TermsPage",
+    "src": "resources/js/pages/public/TermsPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "__plugin-vue_export-helper-jUItB9cv.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js"
+    ]
+  },
+  "resources/js/pages/user/CharactersPage.vue": {
+    "file": "assets/CharactersPage-D3KyTRBf.js",
+    "name": "CharactersPage",
+    "src": "resources/js/pages/user/CharactersPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/user/ChatPage.vue": {
+    "file": "assets/ChatPage-DRPShk6J.js",
+    "name": "ChatPage",
+    "src": "resources/js/pages/user/ChatPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js",
+      "_PricingModal-aP2XeSsV.js"
+    ]
+  },
+  "resources/js/pages/user/DashboardPage.vue": {
+    "file": "assets/DashboardPage-C2D5Jz-J.js",
+    "name": "DashboardPage",
+    "src": "resources/js/pages/user/DashboardPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  },
+  "resources/js/pages/user/ProfilePage.vue": {
+    "file": "assets/ProfilePage-BdrpDUA-.js",
+    "name": "ProfilePage",
+    "src": "resources/js/pages/user/ProfilePage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/main.js",
+      "_runtime-core.esm-bundler-DtViT_Xz.js",
+      "_api-BVDSIBNH.js"
+    ]
+  }
+}

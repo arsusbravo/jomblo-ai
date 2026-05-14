@@ -12,7 +12,12 @@
       "Bash(xxd)",
       "Bash(curl -sk 'https://jombloai.test/api/home' -H 'Accept: application/json')",
       "Bash(curl -sk 'https://jombloai.test/api/nonexistent' -H 'Accept: application/json' -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
-      "Bash(curl -sk 'https://jombloai.test/api/user' -H 'Accept: application/json' -o /dev/null -w \"HTTP %{http_code}\\\\nContent-Type: %{content_type}\\\\n\")"
+      "Bash(curl -sk 'https://jombloai.test/api/user' -H 'Accept: application/json' -o /dev/null -w \"HTTP %{http_code}\\\\nContent-Type: %{content_type}\\\\n\")",
+      "Bash(dig +short jomblo.nl @8.8.8.8)",
+      "Bash(dig +short jomblo.nl @1.1.1.1)",
+      "Bash(dig +short AAAA jomblo.nl @8.8.8.8)",
+      "Bash(dig +short NS jomblo.nl @8.8.8.8)",
+      "Bash(grep -rn '$table->json' '/Users/arsus/Documents/My Application/JombloAI/database/migrations/')"
     ]
   }
 }

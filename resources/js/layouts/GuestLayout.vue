@@ -1,6 +1,8 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex flex-col justify-center items-center px-4">
-    <RouterLink to="/" class="mb-8 text-3xl font-bold text-indigo-600">JombloAI</RouterLink>
+    <RouterLink to="/" class="mb-8 flex items-center">
+      <img :src="'/images/jomblo-logo.png'" alt="JombloAI" class="h-12 w-auto" />
+    </RouterLink>
     <div class="w-full max-w-md">
       <RouterView />
     </div>

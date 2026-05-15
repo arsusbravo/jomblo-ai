@@ -3,8 +3,9 @@
     <nav class="bg-white shadow-sm border-b border-gray-200 relative z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
-          <RouterLink to="/" class="flex items-center">
+          <RouterLink to="/" class="flex items-center gap-2">
             <img :src="'/images/jomblo-logo.png'" alt="JombloAI" class="h-8 w-auto" />
+            <span class="text-xl font-bold text-indigo-600">Jomblo<span class="text-fuchsia-500">AI</span></span>
           </RouterLink>
 
           <!-- Desktop links -->

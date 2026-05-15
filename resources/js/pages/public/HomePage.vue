@@ -4,7 +4,7 @@
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24 text-center">
       <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 mb-4 sm:mb-6 leading-tight">
         {{ i18n.__('public.hero_title') }}
-        <span class="text-indigo-600">JombloAI</span>
+        <span class="text-indigo-600">Jomblo<span class="text-fuchsia-500">AI</span></span>
       </h1>
       <p class="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-10">
         {{ i18n.__('public.hero_subtitle') }}

@@ -3,8 +3,9 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-gray-900 text-gray-100 flex flex-col">
       <div class="h-16 flex items-center px-6 border-b border-gray-700">
-        <RouterLink to="/" class="flex items-center">
+        <RouterLink to="/" class="flex items-center gap-2">
           <img :src="'/images/jomblo-logo.png'" alt="JombloAI" class="h-7 w-auto" />
+          <span class="text-xl font-bold text-indigo-400">Jomblo<span class="text-fuchsia-400">AI</span></span>
         </RouterLink>
         <span class="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">Admin</span>
       </div>

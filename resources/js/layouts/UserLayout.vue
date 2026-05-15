@@ -3,8 +3,9 @@
 
     <!-- Purple top bar -->
     <header class="bg-indigo-700 h-14 flex items-center justify-between px-4 shrink-0 shadow-md">
-      <RouterLink to="/dashboard" class="flex items-center">
+      <RouterLink to="/dashboard" class="flex items-center gap-2">
         <img :src="'/images/jomblo-logo.png'" alt="JombloAI" class="h-8 w-auto" />
+        <span class="text-white font-bold text-xl tracking-tight">Jomblo<span class="text-fuchsia-400">AI</span></span>
       </RouterLink>
 
       <div class="flex items-center gap-1">

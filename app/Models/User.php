@@ -21,6 +21,7 @@ class User extends Authenticatable
         'gender',
         'message_credits',
         'unlimited_until',
+        'stripe_customer_id',
         'date_of_birth',
     ];
 

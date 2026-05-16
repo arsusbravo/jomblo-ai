@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session as StripeSession;
+use Stripe\Customer as StripeCustomer;
 use Stripe\Stripe;
 use Stripe\Webhook;
 
@@ -37,6 +38,19 @@ class PaymentController extends Controller
         $user = $request->user();
         $base = rtrim(config('app.url'), '/');
 
+        // Reuse one Stripe customer per user; default the billing country to NL so
+        // Checkout loads with the Netherlands pre-selected (user can still change it).
+        if (! $user->stripe_customer_id) {
+            $customer = StripeCustomer::create([
+                'email'   => $user->email,
+                'name'    => $user->name,
+                'address' => ['country' => 'NL'],
+                'metadata' => ['user_id' => (string) $user->id],
+            ]);
+            $user->stripe_customer_id = $customer->id;
+            $user->save();
+        }
+
         $session = StripeSession::create([
             'mode'                       => 'payment',
             'line_items'                 => [[
@@ -45,7 +59,8 @@ class PaymentController extends Controller
             ]],
             'automatic_tax'              => ['enabled' => true],
             'billing_address_collection' => 'required',
-            'customer_email'             => $user->email,
+            'customer'                   => $user->stripe_customer_id,
+            'customer_update'            => ['address' => 'auto'],
             'client_reference_id'        => (string) $user->id,
             'metadata'                   => [
                 'user_id' => (string) $user->id,

@@ -99,7 +99,6 @@
     <div class="relative bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 py-4 shrink-0">
       <form @submit.prevent="sendMessage" class="flex items-end gap-3">
         <textarea
-          ref="inputEl"
           v-model="input"
           @keydown.enter.exact.prevent="sendMessage"
           rows="1"
@@ -182,7 +181,6 @@ const character = ref(null)
 const conversation = ref(null)
 const messages = ref([])
 const input = ref('')
-const inputEl = ref(null)
 const sending = ref(false)
 const loadingConversation = ref(true)
 const messagesEl = ref(null)
@@ -252,7 +250,6 @@ async function sendMessage() {
     sending.value = false
     await nextTick()
     scrollToBottom()
-    inputEl.value?.focus()
   }
 }
 

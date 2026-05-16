@@ -38,6 +38,9 @@ return [
     'dob_invalid'  => 'Vul een geldige geboortedatum in.',
     'dob_underage' => 'Je moet minimaal 18 jaar oud zijn om JombloAI te gebruiken.',
 
+    'register_age_confirm'  => 'Ik bevestig dat ik 18 jaar of ouder ben. JombloAI is bedoeld voor volwassenen. Gebruik door minderjarigen is op eigen verantwoordelijkheid en op die van hun ouders of voogd.',
+    'age_confirm_required'  => 'Je moet bevestigen dat je 18 jaar of ouder bent.',
+
     'error_invalid'    => 'Ongeldige inloggegevens. Probeer het opnieuw.',
     'error_generic'    => 'Er is iets misgegaan. Probeer het opnieuw.',
     'turnstile_failed' => 'Beveiligingscontrole mislukt. Probeer het opnieuw.',

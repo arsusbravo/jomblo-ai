@@ -32,4 +32,5 @@ return [
 
     'featured_hint' => 'Inscrivez-vous maintenant et commencez à chatter avec votre partenaire IA.',
     'footer_rights' => 'Tous droits réservés.',
+    'age_notice'    => 'JombloAI est destiné aux utilisateurs âgés de 18 ans et plus.',
 ];

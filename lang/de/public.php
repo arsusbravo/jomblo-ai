@@ -32,4 +32,5 @@ return [
 
     'featured_hint' => 'Registriere dich jetzt und chatte mit deinem KI-Partner.',
     'footer_rights' => 'Alle Rechte vorbehalten.',
+    'age_notice'    => 'JombloAI ist für Nutzer ab 18 Jahren bestimmt.',
 ];

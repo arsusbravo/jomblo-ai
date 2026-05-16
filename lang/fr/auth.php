@@ -38,6 +38,9 @@ return [
     'dob_invalid'  => 'Veuillez entrer une date de naissance valide.',
     'dob_underage' => 'Vous devez avoir au moins 18 ans pour utiliser JombloAI.',
 
+    'register_age_confirm'  => "Je confirme avoir 18 ans ou plus. JombloAI est destiné aux adultes. Toute utilisation par des mineurs relève de la seule responsabilité de l'utilisateur et de ses parents ou tuteurs.",
+    'age_confirm_required'  => 'Vous devez confirmer que vous avez 18 ans ou plus.',
+
     'error_invalid'    => 'Identifiants invalides. Veuillez réessayer.',
     'error_generic'    => 'Une erreur est survenue. Veuillez réessayer.',
     'turnstile_failed' => 'Vérification de sécurité échouée. Veuillez réessayer.',

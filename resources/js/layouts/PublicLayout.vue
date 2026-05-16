@@ -100,12 +100,12 @@
           <RouterLink to="/terms" class="hover:text-indigo-600 transition-colors">Algemene Voorwaarden</RouterLink>
           <RouterLink to="/cookies" class="hover:text-indigo-600 transition-colors">Cookiebeleid</RouterLink>
         </div>
+        <p class="text-gray-500">{{ i18n.__('public.age_notice') }}</p>
         <p>&copy; {{ new Date().getFullYear() }} JombloAI — Arsus · KVK 76343251</p>
       </div>
     </footer>
 
     <CookieBanner />
-    <AgeGate />
   </div>
 </template>
 
@@ -116,7 +116,6 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18nStore } from '@/stores/i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import CookieBanner from '@/components/CookieBanner.vue'
-import AgeGate from '@/components/AgeGate.vue'
 
 const auth = useAuthStore()
 const i18n = useI18nStore()

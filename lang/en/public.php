@@ -38,4 +38,5 @@ return [
     // Footer
     'featured_hint' => 'Join now and start chatting with your AI partner.',
     'footer_rights' => 'All rights reserved.',
+    'age_notice'    => 'JombloAI is intended for users aged 18 and over.',
 ];

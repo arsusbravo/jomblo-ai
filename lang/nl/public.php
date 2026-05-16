@@ -32,4 +32,5 @@ return [
 
     'featured_hint' => 'Meld je aan en begin met chatten met je AI-partner.',
     'footer_rights' => 'Alle rechten voorbehouden.',
+    'age_notice'    => 'JombloAI is bedoeld voor gebruikers van 18 jaar en ouder.',
 ];

@@ -78,6 +78,18 @@
         <p v-else class="mt-1 text-xs text-gray-400">{{ i18n.__('auth.register_dob_hint') }}</p>
       </div>
 
+      <div>
+        <label class="flex items-start gap-2.5 cursor-pointer">
+          <input
+            v-model="form.age_confirm"
+            type="checkbox"
+            class="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          />
+          <span class="text-xs leading-relaxed text-gray-500">{{ i18n.__('auth.register_age_confirm') }}</span>
+        </label>
+        <p v-if="errors.age_confirm" class="mt-1 text-xs text-red-500">{{ errors.age_confirm }}</p>
+      </div>
+
       <div v-if="turnstileEnabled" ref="turnstileContainer"></div>
 
       <p v-if="errors._general" class="text-sm text-red-500">{{ errors._general }}</p>
@@ -109,7 +121,7 @@ const i18n = useI18nStore()
 const router = useRouter()
 
 const defaultDob = new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-const form = ref({ name: '', gender: 'male', email: '', password: '', password_confirmation: '', date_of_birth: '' })
+const form = ref({ name: '', gender: 'male', email: '', password: '', password_confirmation: '', date_of_birth: '', age_confirm: false })
 const loading = ref(false)
 const errors = ref({})
 

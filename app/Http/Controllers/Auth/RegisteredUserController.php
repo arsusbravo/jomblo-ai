@@ -29,10 +29,12 @@ class RegisteredUserController extends Controller
             'email'         => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password'      => ['required', 'confirmed', Rules\Password::defaults()],
             'date_of_birth' => ['required', 'date', 'before_or_equal:' . now()->subYears(18)->toDateString()],
+            'age_confirm'   => ['accepted'],
         ], [
             'date_of_birth.required'         => __('auth.dob_required'),
             'date_of_birth.date'             => __('auth.dob_invalid'),
             'date_of_birth.before_or_equal'  => __('auth.dob_underage'),
+            'age_confirm.accepted'           => __('auth.age_confirm_required'),
         ]);
 
         $user = User::create([

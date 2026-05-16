@@ -50,6 +50,8 @@ return [
     'payment_success'        => 'Zahlung erfolgreich! Dein Guthaben wurde aktualisiert.',
     'payment_cancelled'      => 'Zahlung abgebrochen. Es wurde nichts berechnet.',
 
+    'profile_balance'    => 'Dein Guthaben',
+    'profile_unlimited'  => 'Unbegrenzt — aktiv bis :date',
     'profile_title'    => 'Mein Profil',
     'profile_name'     => 'Name',
     'profile_email'    => 'E-Mail',

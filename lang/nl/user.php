@@ -50,6 +50,8 @@ return [
     'payment_success'        => 'Betaling gelukt! Je tegoed is bijgewerkt.',
     'payment_cancelled'      => 'Betaling geannuleerd. Er is niets in rekening gebracht.',
 
+    'profile_balance'    => 'Je tegoed',
+    'profile_unlimited'  => 'Onbeperkt — actief tot :date',
     'profile_title'    => 'Mijn profiel',
     'profile_name'     => 'Naam',
     'profile_email'    => 'E-mailadres',

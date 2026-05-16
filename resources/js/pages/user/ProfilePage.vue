@@ -2,6 +2,16 @@
   <div class="max-w-2xl p-4 sm:p-6">
     <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ i18n.__('user.profile_title') }}</h2>
 
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <p class="text-xs font-medium uppercase tracking-wide text-gray-400 mb-1">{{ i18n.__('user.profile_balance') }}</p>
+      <p v-if="isUnlimited" class="text-lg font-bold text-indigo-600">
+        ∞ {{ i18n.__('user.profile_unlimited', { date: unlimitedDate }) }}
+      </p>
+      <p v-else class="text-lg font-bold" :class="credits === 0 ? 'text-red-500' : credits <= 5 ? 'text-amber-500' : 'text-gray-900'">
+        {{ i18n.__('user.credits_remaining', { count: credits }) }}
+      </p>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <form @submit.prevent="handleSave" class="space-y-4">
         <div>
@@ -62,13 +72,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useI18nStore } from '@/stores/i18n'
 
 const auth = useAuthStore()
 const i18n = useI18nStore()
+
+const isUnlimited = computed(() => {
+  const until = auth.user?.unlimited_until
+  return !!until && new Date(until) > new Date()
+})
+const unlimitedDate = computed(() =>
+  auth.user?.unlimited_until
+    ? new Date(auth.user.unlimited_until).toLocaleDateString()
+    : ''
+)
+const credits = computed(() => auth.user?.message_credits ?? 0)
+
 const form = ref({ name: '', email: '', gender: 'male' })
 const saving = ref(false)
 const success = ref('')

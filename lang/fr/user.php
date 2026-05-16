@@ -50,6 +50,8 @@ return [
     'payment_success'        => 'Paiement réussi ! Votre solde a été mis à jour.',
     'payment_cancelled'      => 'Paiement annulé. Vous n\'avez pas été débité.',
 
+    'profile_balance'    => 'Votre solde',
+    'profile_unlimited'  => 'Illimité — actif jusqu\'au :date',
     'profile_title'    => 'Mon profil',
     'profile_name'     => 'Nom',
     'profile_email'    => 'E-mail',

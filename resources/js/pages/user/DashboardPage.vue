@@ -93,8 +93,11 @@ const paymentBanner = ref(null)
 onMounted(async () => {
   if (route.query.payment === 'success') {
     paymentBanner.value = { ok: true, text: i18n.__('user.payment_success') }
-    await auth.fetchUser() // webhook already credited server-side — refresh local state
     router.replace({ query: {} })
+    // Webhook fulfills server-side; it may land a beat after redirect — refetch a few times.
+    await auth.fetchUser()
+    setTimeout(() => auth.fetchUser(), 2000)
+    setTimeout(() => auth.fetchUser(), 5000)
   } else if (route.query.payment === 'cancelled') {
     paymentBanner.value = { ok: false, text: i18n.__('user.payment_cancelled') }
     router.replace({ query: {} })

@@ -56,6 +56,8 @@ return [
     'payment_cancelled'      => 'Payment cancelled. You were not charged.',
 
     // Profile
+    'profile_balance'    => 'Your balance',
+    'profile_unlimited'  => 'Unlimited — active until :date',
     'profile_title'    => 'My Profile',
     'profile_name'     => 'Name',
     'profile_email'    => 'Email',

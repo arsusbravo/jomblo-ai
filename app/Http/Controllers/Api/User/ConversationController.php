@@ -44,7 +44,7 @@ class ConversationController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if (! $user->hasCredits()) {
+        if (! $user->canSendMessage()) {
             return response()->json(['message' => 'out_of_credits', 'credits_remaining' => 0], 402);
         }
 
@@ -69,14 +69,20 @@ class ConversationController extends Controller
             'content' => $aiText,
         ]);
 
-        $user->decrement('message_credits');
+        // Unlimited users don't consume credits.
+        if (! $user->hasUnlimited()) {
+            $user->decrement('message_credits');
+        }
 
         $conversation->touch();
 
+        $fresh = $user->fresh();
+
         return response()->json([
-            'user_message'     => $userMessage,
-            'ai_message'       => $aiMessage,
-            'credits_remaining' => $user->fresh()->message_credits,
+            'user_message'      => $userMessage,
+            'ai_message'        => $aiMessage,
+            'credits_remaining' => $fresh->message_credits,
+            'unlimited_until'   => $fresh->unlimited_until,
         ]);
     }
 }

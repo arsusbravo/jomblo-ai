@@ -20,6 +20,7 @@ class User extends Authenticatable
         'role',
         'gender',
         'message_credits',
+        'unlimited_until',
         'date_of_birth',
     ];
 
@@ -34,6 +35,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'message_credits' => 'integer',
+            'unlimited_until' => 'datetime',
             'date_of_birth'   => 'date',
         ];
     }
@@ -46,5 +48,20 @@ class User extends Authenticatable
     public function hasCredits(): bool
     {
         return $this->message_credits > 0;
+    }
+
+    public function hasUnlimited(): bool
+    {
+        return $this->unlimited_until !== null && $this->unlimited_until->isFuture();
+    }
+
+    public function canSendMessage(): bool
+    {
+        return $this->hasUnlimited() || $this->hasCredits();
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

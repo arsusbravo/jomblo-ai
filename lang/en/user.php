@@ -50,6 +50,10 @@ return [
     'pricing_per_month'      => '/ month',
     'pricing_buy'            => 'Get started',
     'pricing_close'          => 'Maybe later',
+    'pricing_redirecting'    => 'Redirecting...',
+    'pricing_unavailable'    => 'Payments are currently unavailable. Please try again later.',
+    'payment_success'        => 'Payment successful! Your balance has been updated.',
+    'payment_cancelled'      => 'Payment cancelled. You were not charged.',
 
     // Profile
     'profile_title'    => 'My Profile',

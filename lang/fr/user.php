@@ -45,6 +45,10 @@ return [
     'pricing_per_month'      => '/ mois',
     'pricing_buy'            => 'Commencer',
     'pricing_close'          => 'Peut-être plus tard',
+    'pricing_redirecting'    => 'Redirection...',
+    'pricing_unavailable'    => 'Les paiements sont actuellement indisponibles. Veuillez réessayer plus tard.',
+    'payment_success'        => 'Paiement réussi ! Votre solde a été mis à jour.',
+    'payment_cancelled'      => 'Paiement annulé. Vous n\'avez pas été débité.',
 
     'profile_title'    => 'Mon profil',
     'profile_name'     => 'Nom',

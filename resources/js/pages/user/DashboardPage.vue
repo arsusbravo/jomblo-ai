@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div v-if="paymentBanner" :class="paymentBanner.ok
+        ? 'bg-green-50 border-green-200 text-green-700'
+        : 'bg-amber-50 border-amber-200 text-amber-700'"
+      class="mx-4 mt-4 border text-sm px-4 py-3 rounded-lg">
+      {{ paymentBanner.text }}
+    </div>
+
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
       <div class="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -70,16 +77,29 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
 import api from '@/api'
 import { useI18nStore } from '@/stores/i18n'
+import { useAuthStore } from '@/stores/auth'
 
 const i18n = useI18nStore()
 const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
 const conversations = ref([])
 const loading = ref(true)
+const paymentBanner = ref(null)
 
 onMounted(async () => {
+  if (route.query.payment === 'success') {
+    paymentBanner.value = { ok: true, text: i18n.__('user.payment_success') }
+    await auth.fetchUser() // webhook already credited server-side — refresh local state
+    router.replace({ query: {} })
+  } else if (route.query.payment === 'cancelled') {
+    paymentBanner.value = { ok: false, text: i18n.__('user.payment_cancelled') }
+    router.replace({ query: {} })
+  }
+
   try {
     const { data } = await api.get('/api/user/conversations')
     conversations.value = data.conversations

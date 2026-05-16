@@ -45,6 +45,10 @@ return [
     'pricing_per_month'      => '/ Monat',
     'pricing_buy'            => 'Loslegen',
     'pricing_close'          => 'Vielleicht später',
+    'pricing_redirecting'    => 'Weiterleitung...',
+    'pricing_unavailable'    => 'Zahlungen sind derzeit nicht verfügbar. Bitte versuche es später erneut.',
+    'payment_success'        => 'Zahlung erfolgreich! Dein Guthaben wurde aktualisiert.',
+    'payment_cancelled'      => 'Zahlung abgebrochen. Es wurde nichts berechnet.',
 
     'profile_title'    => 'Mein Profil',
     'profile_name'     => 'Name',

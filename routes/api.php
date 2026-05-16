@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Admin\CharacterController as AdminCharacterController;
 use App\Http\Controllers\Api\LangController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\User\CharacterController as UserCharacterController;
@@ -16,6 +17,9 @@ Route::get('/about', [PublicController::class, 'about']);
 Route::get('/pricing', [PublicController::class, 'pricing']);
 Route::get('/featured-characters', [PublicController::class, 'featuredCharacters']);
 Route::get('/lang/{locale}', [LangController::class, 'show']);
+
+// Stripe webhook — public, server-to-server (signature-verified inside the controller)
+Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
 
 // Authenticated user info — auth:sanctum ensures correct guard; exception handler returns null (not 401) for guests
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -31,6 +35,7 @@ Route::middleware(['auth:sanctum', 'auth.user'])->prefix('user')->group(function
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::get('/conversations/{character}', [ConversationController::class, 'show']);
     Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);
+    Route::post('/checkout', [PaymentController::class, 'checkout']);
 });
 
 // Admin routes (authenticated, admin role only)

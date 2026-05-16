@@ -58,15 +58,18 @@
             </p>
             <button
               @click="handleBuy(plan.id)"
-              class="w-full mt-auto py-2 rounded-xl text-sm font-semibold transition-colors"
+              :disabled="buying"
+              class="w-full mt-auto py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               :class="plan.highlight
                 ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                 : plan.id === 'unlimited'
                   ? 'bg-gray-900 text-white hover:bg-gray-700'
                   : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'"
-            >{{ i18n.__('user.pricing_buy') }}</button>
+            >{{ buying ? i18n.__('user.pricing_redirecting') : i18n.__('user.pricing_buy') }}</button>
           </div>
         </div>
+
+        <p v-if="buyError" class="px-6 -mt-2 text-center text-sm text-red-500">{{ buyError }}</p>
 
         <!-- Footer -->
         <div class="px-6 pb-6 text-center">
@@ -91,6 +94,8 @@ defineEmits(['close'])
 const i18n = useI18nStore()
 const plans = ref([])
 const currency = ref('EUR')
+const buying = ref(false)
+const buyError = ref('')
 
 watch(() => props.show, async (val) => {
   if (val && !plans.value.length) {
@@ -108,8 +113,18 @@ function formatPrice(amountInCents, currencyCode) {
   }).format(amountInCents / 100)
 }
 
-function handleBuy(planId) {
-  // Stripe integration goes here
-  alert(`Coming soon! Plan: ${planId}`)
+async function handleBuy(planId) {
+  if (buying.value) return
+  buying.value = true
+  buyError.value = ''
+  try {
+    const { data } = await api.post('/api/user/checkout', { plan: planId })
+    window.location.href = data.url
+  } catch (e) {
+    buying.value = false
+    buyError.value = e.response?.status === 503
+      ? i18n.__('user.pricing_unavailable')
+      : i18n.__('auth.error_generic')
+  }
 }
 </script>

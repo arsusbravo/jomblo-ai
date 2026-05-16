@@ -45,6 +45,10 @@ return [
     'pricing_per_month'      => '/ maand',
     'pricing_buy'            => 'Aan de slag',
     'pricing_close'          => 'Misschien later',
+    'pricing_redirecting'    => 'Doorsturen...',
+    'pricing_unavailable'    => 'Betalingen zijn momenteel niet beschikbaar. Probeer het later opnieuw.',
+    'payment_success'        => 'Betaling gelukt! Je tegoed is bijgewerkt.',
+    'payment_cancelled'      => 'Betaling geannuleerd. Er is niets in rekening gebracht.',
 
     'profile_title'    => 'Mijn profiel',
     'profile_name'     => 'Naam',

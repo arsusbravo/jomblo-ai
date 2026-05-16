@@ -38,19 +38,21 @@ class PaymentController extends Controller
         $base = rtrim(config('app.url'), '/');
 
         $session = StripeSession::create([
-            'mode'                 => 'payment',
-            'line_items'           => [[
+            'mode'                       => 'payment',
+            'line_items'                 => [[
                 'price'    => $plan['stripe_price_id'],
                 'quantity' => 1,
             ]],
-            'customer_email'       => $user->email,
-            'client_reference_id'  => (string) $user->id,
-            'metadata'             => [
+            'automatic_tax'              => ['enabled' => true],
+            'billing_address_collection' => 'required',
+            'customer_email'             => $user->email,
+            'client_reference_id'        => (string) $user->id,
+            'metadata'                   => [
                 'user_id' => (string) $user->id,
                 'plan_id' => $plan['id'],
             ],
-            'success_url'          => $base . '/dashboard?payment=success',
-            'cancel_url'           => $base . '/dashboard?payment=cancelled',
+            'success_url'                => $base . '/dashboard?payment=success',
+            'cancel_url'                 => $base . '/dashboard?payment=cancelled',
         ]);
 
         Payment::create([

@@ -20,10 +20,14 @@ class OpenRouterService
         $this->endpoint = rtrim(config('services.openrouter.endpoint'), '/') . '/completions';
     }
 
-    public function sendMessage(Character $character, Collection $history): string
+    public function sendMessage(Character $character, Collection $history, ?string $userName = null): string
     {
+        $systemPrompt = strtr($character->personality_prompt, [
+            '{user_name}' => trim((string) $userName) !== '' ? trim($userName) : 'you',
+        ]);
+
         $messages = [
-            ['role' => 'system', 'content' => $character->personality_prompt],
+            ['role' => 'system', 'content' => $systemPrompt],
         ];
 
         foreach ($history as $msg) {

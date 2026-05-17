@@ -61,7 +61,8 @@ class ConversationController extends Controller
 
         $aiText = app(OpenRouterService::class)->sendMessage(
             $conversation->character,
-            $history
+            $history,
+            $user->name
         );
 
         $aiMessage = $conversation->messages()->create([

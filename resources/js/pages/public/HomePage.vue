@@ -24,11 +24,11 @@
     <!-- Featured characters -->
     <section v-if="featured.female?.length || featured.male?.length" class="py-10 sm:py-14">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 gap-4 sm:gap-8">
+        <div class="space-y-8 sm:space-y-12">
           <!-- Female -->
           <div>
             <p class="text-xs font-semibold text-pink-400 uppercase tracking-widest mb-3 text-center">♀ {{ i18n.__('user.characters_filter_female') }}</p>
-            <div class="grid grid-cols-2 gap-2 sm:gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               <RouterLink
                 v-for="character in featured.female"
                 :key="character.id"
@@ -46,7 +46,7 @@
           <!-- Male -->
           <div>
             <p class="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-3 text-center">♂ {{ i18n.__('user.characters_filter_male') }}</p>
-            <div class="grid grid-cols-2 gap-2 sm:gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               <RouterLink
                 v-for="character in featured.male"
                 :key="character.id"

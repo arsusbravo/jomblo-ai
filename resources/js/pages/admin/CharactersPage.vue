@@ -34,7 +34,7 @@
 
     <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
       <div
-        v-for="character in filteredCharacters"
+        v-for="character in pagedCharacters"
         :key="character.id"
         class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
       >
@@ -55,6 +55,15 @@
             class="absolute top-3 right-3 text-xs px-2 py-1 rounded-full font-medium capitalize"
             :class="character.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'"
           >{{ character.is_active ? 'Active' : 'Inactive' }}</span>
+          <span
+            class="absolute top-3 left-3 flex items-center gap-1 text-xs px-2 py-1 rounded-full font-semibold bg-black/55 text-white backdrop-blur-sm"
+            title="Users who have chatted with this character"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2.13a4 4 0 10-4-4 4 4 0 004 4z" />
+            </svg>
+            {{ character.chatters_count ?? 0 }}
+          </span>
         </div>
 
         <!-- Info -->
@@ -79,6 +88,29 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="!loading && totalPages > 1" class="flex justify-center items-center gap-1 mt-6">
+      <button
+        @click="currentPage--"
+        :disabled="currentPage === 1"
+        class="px-3 py-1.5 rounded-lg text-sm border border-gray-200 bg-white text-gray-600 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed"
+      >‹</button>
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        @click="currentPage = p"
+        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+        :class="p === currentPage
+          ? 'bg-indigo-600 text-white'
+          : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600'"
+      >{{ p }}</button>
+      <button
+        @click="currentPage++"
+        :disabled="currentPage === totalPages"
+        class="px-3 py-1.5 rounded-lg text-sm border border-gray-200 bg-white text-gray-600 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed"
+      >›</button>
     </div>
 
     <!-- Create / Edit Modal -->
@@ -212,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import api from '@/api'
 
 const characters = ref([])
@@ -230,6 +262,19 @@ const filteredCharacters = computed(() =>
     ? characters.value
     : characters.value.filter(c => c.gender === genderFilter.value)
 )
+
+// Numbered pagination — 8 per page
+const perPage = 8
+const currentPage = ref(1)
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredCharacters.value.length / perPage))
+)
+const pagedCharacters = computed(() =>
+  filteredCharacters.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage)
+)
+watch(genderFilter, () => { currentPage.value = 1 })
+watch(totalPages, (tp) => { if (currentPage.value > tp) currentPage.value = tp })
+
 const saving = ref(false)
 const errors = ref([])
 const deleteTarget = ref(null)
@@ -331,10 +376,11 @@ async function handleSubmit() {
     if (modal.editing) {
       const { data } = await api.post(`/api/admin/characters/${modal.characterId}`, formData)
       const idx = characters.value.findIndex(c => c.id === modal.characterId)
-      if (idx !== -1) characters.value[idx] = data.character
+      // update endpoint doesn't return chatters_count — keep the existing value
+      if (idx !== -1) characters.value[idx] = { ...data.character, chatters_count: characters.value[idx].chatters_count ?? 0 }
     } else {
       const { data } = await api.post('/api/admin/characters', formData)
-      characters.value.unshift(data.character)
+      characters.value.unshift({ ...data.character, chatters_count: 0 })
     }
     closeModal()
   } catch (e) {

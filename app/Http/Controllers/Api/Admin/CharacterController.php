@@ -12,7 +12,9 @@ class CharacterController extends Controller
 {
     public function index(): JsonResponse
     {
-        $characters = Character::orderBy('name')->get();
+        $characters = Character::withCount(['conversations as chatters_count' => fn($q) => $q->has('messages')])
+            ->orderBy('name')
+            ->get();
 
         return response()->json(['characters' => $characters]);
     }

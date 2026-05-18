@@ -263,8 +263,8 @@ const filteredCharacters = computed(() =>
     : characters.value.filter(c => c.gender === genderFilter.value)
 )
 
-// Numbered pagination — 8 per page
-const perPage = 8
+// Numbered pagination — 12 per page
+const perPage = 12
 const currentPage = ref(1)
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredCharacters.value.length / perPage))

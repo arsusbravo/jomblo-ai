@@ -26,7 +26,7 @@
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        v-for="character in filteredCharacters"
+        v-for="character in displayedCharacters"
         :key="character.id"
         @click="startChat(character.id)"
         class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
@@ -67,11 +67,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Infinite-scroll trigger -->
+    <div v-if="!loading && hasMore" ref="sentinel" class="flex justify-center py-8">
+      <div class="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useI18nStore } from '@/stores/i18n'
@@ -93,13 +98,52 @@ const filteredCharacters = computed(() =>
     : characters.value.filter(c => c.gender === genderFilter.value)
 )
 
+// Infinite scroll: 3 per load on mobile, 6 on tablet/desktop
+const pageSizeFor = () => (window.innerWidth < 640 ? 3 : 6)
+const pageSize = ref(pageSizeFor())
+const visibleCount = ref(pageSize.value)
+
+const displayedCharacters = computed(() =>
+  filteredCharacters.value.slice(0, visibleCount.value)
+)
+const hasMore = computed(() => visibleCount.value < filteredCharacters.value.length)
+
+function onResize() {
+  pageSize.value = pageSizeFor()
+}
+
+// Switching gender restarts paging from the top
+watch(genderFilter, () => {
+  visibleCount.value = pageSize.value
+})
+
+const sentinel = ref(null)
+let observer = null
+
+watch(sentinel, (el) => {
+  observer?.disconnect()
+  if (el) observer?.observe(el)
+})
+
 onMounted(async () => {
+  window.addEventListener('resize', onResize)
+  observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && hasMore.value) {
+      visibleCount.value += pageSize.value
+    }
+  }, { rootMargin: '200px' })
+
   try {
     const { data } = await api.get('/api/user/characters')
     characters.value = data.characters
   } finally {
     loading.value = false
   }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
+  observer?.disconnect()
 })
 
 function startChat(characterId) {

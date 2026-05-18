@@ -25,9 +25,16 @@ class OpenRouterService
         $name = trim((string) $userName) !== '' ? trim($userName) : 'you';
         $userGender = in_array($userGender, ['male', 'female'], true) ? $userGender : null;
 
+        $userRole = match ($userGender) {
+            'male'   => 'boyfriend',
+            'female' => 'girlfriend',
+            default  => 'partner',
+        };
+
         $systemPrompt = strtr($character->personality_prompt, [
             '{user_name}'   => $name,
             '{user_gender}' => $userGender ?? '',
+            '{user_role}'   => $userRole,
         ]);
 
         $systemPrompt .= "\n\n" . $this->orientationClause($character->gender, $userGender, $name);

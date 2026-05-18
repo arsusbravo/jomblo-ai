@@ -20,11 +20,17 @@ class OpenRouterService
         $this->endpoint = rtrim(config('services.openrouter.endpoint'), '/') . '/completions';
     }
 
-    public function sendMessage(Character $character, Collection $history, ?string $userName = null): string
+    public function sendMessage(Character $character, Collection $history, ?string $userName = null, ?string $userGender = null): string
     {
+        $name = trim((string) $userName) !== '' ? trim($userName) : 'you';
+        $userGender = in_array($userGender, ['male', 'female'], true) ? $userGender : null;
+
         $systemPrompt = strtr($character->personality_prompt, [
-            '{user_name}' => trim((string) $userName) !== '' ? trim($userName) : 'you',
+            '{user_name}'   => $name,
+            '{user_gender}' => $userGender ?? '',
         ]);
+
+        $systemPrompt .= "\n\n" . $this->orientationClause($character->gender, $userGender, $name);
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],
@@ -48,5 +54,37 @@ class OpenRouterService
         }
 
         return $response->json('choices.0.message.content');
+    }
+
+    /**
+     * Authoritative relationship/orientation instruction appended after the
+     * admin prompt. It deliberately overrides any conflicting gendered wording
+     * (e.g. "your boyfriend") so the romance works for whoever is chatting.
+     */
+    private function orientationClause(string $characterGender, ?string $userGender, string $name): string
+    {
+        $tone = 'Keep all affection romantic, warm, and tasteful — never sexually explicit.';
+
+        if ($userGender === null) {
+            return "(Important — this overrides anything above: You are romantically and "
+                . "affectionately interested in {$name}. {$tone})";
+        }
+
+        $sameSex = $characterGender === $userGender;
+        $youAre  = $characterGender === 'female' ? 'a woman' : 'a man';
+        $theyAre = $userGender === 'female' ? 'a woman' : 'a man';
+
+        if ($sameSex) {
+            $orientation = $characterGender === 'female'
+                ? "You are {$youAre} who is romantically and emotionally attracted to women (lesbian)."
+                : "You are {$youAre} who is romantically and emotionally attracted to men (gay).";
+        } else {
+            $orientation = "You are {$youAre} who is romantically and emotionally attracted to "
+                . ($userGender === 'female' ? 'women' : 'men') . ' (heterosexual).';
+        }
+
+        return "(Important — this overrides any conflicting wording above: {$orientation} "
+            . "{$name} is {$theyAre}, and {$name} is the person you are romantically interested in. "
+            . "Refer to your relationship accordingly. {$tone})";
     }
 }

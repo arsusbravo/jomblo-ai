@@ -28,8 +28,15 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Require + verify the Turnstile token only when Turnstile is configured.
+        // 'required' is essential: a custom rule object is non-implicit and would
+        // otherwise be skipped entirely when the token is empty/missing.
+        $turnstile = ! empty(config('services.turnstile.secret'))
+            ? ['required', new Turnstile]
+            : ['nullable'];
+
         return [
-            'cf_turnstile_response' => ['nullable', new Turnstile],
+            'cf_turnstile_response' => $turnstile,
             'email'                 => ['required', 'string', 'email'],
             'password'              => ['required', 'string'],
         ];

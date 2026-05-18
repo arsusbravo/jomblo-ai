@@ -22,8 +22,12 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): Response
     {
+        $turnstile = ! empty(config('services.turnstile.secret'))
+            ? ['required', new Turnstile]
+            : ['nullable'];
+
         $request->validate([
-            'cf_turnstile_response' => ['nullable', new Turnstile],
+            'cf_turnstile_response' => $turnstile,
             'name'          => ['required', 'string', 'max:255'],
             'gender'        => ['required', 'in:male,female'],
             'email'         => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],

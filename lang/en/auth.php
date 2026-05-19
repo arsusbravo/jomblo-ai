@@ -45,7 +45,7 @@ return [
     'register_age_confirm'  => 'I confirm that I am 18 years or older. JombloAI is intended for adults. Any use by minors is the sole responsibility of the user and their parents or guardian.',
     'age_confirm_required'  => 'You must confirm that you are 18 years or older.',
 
-    'guest_title'        => 'Start chatting — no account needed',
+    'guest_title'        => 'Start chatting',
     'guest_subtitle'     => 'Meet your AI partner in seconds.',
     'guest_name_help'    => 'What should your partner call you?',
     'guest_gender_help'  => 'Your partner needs to know your gender.',

@@ -5,15 +5,14 @@
 
     <form @submit.prevent="handleStart" novalidate class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.__('auth.register_name') }}</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.__('auth.guest_name_help') }}</label>
         <input
           v-model="form.name"
           type="text"
-          :placeholder="i18n.__('auth.placeholder_name')"
+          :placeholder="i18n.__('auth.register_name')"
           :class="fieldClass(errors.name)"
         />
         <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
-        <p v-else class="mt-1 text-xs text-gray-400">{{ i18n.__('auth.guest_name_help') }}</p>
       </div>
 
       <div>

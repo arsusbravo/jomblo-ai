@@ -41,7 +41,7 @@ return [
     'register_age_confirm'  => 'Ich bestätige, dass ich 18 Jahre oder älter bin. JombloAI ist für Erwachsene bestimmt. Die Nutzung durch Minderjährige erfolgt auf eigene Verantwortung sowie auf die der Eltern oder Erziehungsberechtigten.',
     'age_confirm_required'  => 'Du musst bestätigen, dass du 18 Jahre oder älter bist.',
 
-    'guest_title'        => 'Sofort chatten — kein Konto nötig',
+    'guest_title'        => 'Sofort chatten',
     'guest_subtitle'     => 'Triff deinen KI-Partner in Sekunden.',
     'guest_name_help'    => 'Wie soll dich dein Partner nennen?',
     'guest_gender_help'  => 'Dein Partner muss dein Geschlecht kennen.',

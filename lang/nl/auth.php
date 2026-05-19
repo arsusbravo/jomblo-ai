@@ -41,7 +41,7 @@ return [
     'register_age_confirm'  => 'Ik bevestig dat ik 18 jaar of ouder ben. JombloAI is bedoeld voor volwassenen. Gebruik door minderjarigen is op eigen verantwoordelijkheid en op die van hun ouders of voogd.',
     'age_confirm_required'  => 'Je moet bevestigen dat je 18 jaar of ouder bent.',
 
-    'guest_title'        => 'Begin met chatten — geen account nodig',
+    'guest_title'        => 'Begin met chatten',
     'guest_subtitle'     => 'Ontmoet je AI-partner in enkele seconden.',
     'guest_name_help'    => 'Hoe moet je partner je noemen?',
     'guest_gender_help'  => 'Je partner moet je geslacht weten.',

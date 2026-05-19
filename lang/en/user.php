@@ -54,6 +54,14 @@ return [
     'pricing_unavailable'    => 'Payments are currently unavailable. Please try again later.',
     'payment_success'        => 'Payment successful! Your balance has been updated.',
     'payment_cancelled'      => 'Payment cancelled. You were not charged.',
+    'guest_banner'           => "You're using a guest session — register to keep your chats and buy credits.",
+    'guest_register_cta'     => 'Create a free account',
+    'pricing_register_required' => 'Create an account to buy more & save your chats',
+    'pricing_verify_required'   => 'Verify your email to buy — check your inbox.',
+    'verify_resend'          => 'Resend verification email',
+    'verify_resent'          => 'Verification email sent.',
+    'upgrade_title'          => 'Create your account',
+    'upgrade_subtitle'       => 'Keep your chats and unlock purchases.',
 
     // Profile
     'profile_balance'    => 'Your balance',

@@ -93,6 +93,7 @@
 
               <div class="border-t border-gray-100 mt-1 pt-1">
                 <button
+                  v-if="!auth.isGuest"
                   @click="handleLogout"
                   class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                 >
@@ -101,6 +102,17 @@
                   </svg>
                   {{ i18n.__('user.nav_logout') }}
                 </button>
+                <RouterLink
+                  v-else
+                  to="/register"
+                  @click="menuOpen = false"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {{ i18n.__('user.guest_register_cta') }}
+                </RouterLink>
               </div>
             </div>
           </Transition>

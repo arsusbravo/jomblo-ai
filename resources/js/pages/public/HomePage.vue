@@ -11,7 +11,7 @@
       </p>
       <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
         <RouterLink
-          to="/register"
+          to="/try"
           class="bg-indigo-600 text-white px-8 py-3 rounded-xl text-base font-semibold hover:bg-indigo-700 transition-colors shadow-lg"
         >{{ i18n.__('public.hero_cta') }}</RouterLink>
         <RouterLink
@@ -32,7 +32,7 @@
               <RouterLink
                 v-for="character in featured.female"
                 :key="character.id"
-                to="/register"
+                to="/try"
                 class="group relative rounded-2xl overflow-hidden shadow-md aspect-3/4 block bg-linear-to-br from-pink-100 to-rose-200"
               >
                 <img :src="character.avatar_url" :alt="character.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -50,7 +50,7 @@
               <RouterLink
                 v-for="character in featured.male"
                 :key="character.id"
-                to="/register"
+                to="/try"
                 class="group relative rounded-2xl overflow-hidden shadow-md aspect-3/4 block bg-linear-to-br from-blue-100 to-indigo-200"
               >
                 <img :src="character.avatar_url" :alt="character.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -87,7 +87,7 @@
         <h2 class="text-3xl font-bold text-white mb-4">{{ i18n.__('public.cta_title') }}</h2>
         <p class="text-indigo-200 mb-8">{{ i18n.__('public.cta_subtitle') }}</p>
         <RouterLink
-          to="/register"
+          to="/try"
           class="bg-white text-indigo-600 px-8 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition-colors"
         >{{ i18n.__('public.cta_button') }}</RouterLink>
       </div>

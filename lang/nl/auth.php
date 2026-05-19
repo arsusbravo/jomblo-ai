@@ -41,6 +41,21 @@ return [
     'register_age_confirm'  => 'Ik bevestig dat ik 18 jaar of ouder ben. JombloAI is bedoeld voor volwassenen. Gebruik door minderjarigen is op eigen verantwoordelijkheid en op die van hun ouders of voogd.',
     'age_confirm_required'  => 'Je moet bevestigen dat je 18 jaar of ouder bent.',
 
+    'guest_title'        => 'Begin met chatten — geen account nodig',
+    'guest_subtitle'     => 'Ontmoet je AI-partner in enkele seconden.',
+    'guest_name_help'    => 'Hoe moet je partner je noemen?',
+    'guest_gender_help'  => 'Je partner moet je geslacht weten.',
+    'guest_dob_help'     => 'Je kunt alleen chatten als je 18 jaar of ouder bent.',
+    'guest_button'       => 'Begin met chatten',
+    'guest_loading'      => 'Bezig...',
+    'register_as_guest'  => 'Probeer zonder account',
+    'guest_have_account' => 'Heb je al een account?',
+    'guest_throttled'    => 'Te veel pogingen vanaf je netwerk. Wacht even, of maak een account aan om door te gaan.',
+
+    'register_upgrade_title'    => 'Maak je account aan',
+    'register_upgrade_subtitle' => 'Voeg een e-mailadres & wachtwoord toe om je chats te bewaren en credits te kopen.',
+    'register_upgrade_back'     => '← Terug naar chat',
+
     'error_invalid'    => 'Ongeldige inloggegevens. Probeer het opnieuw.',
     'error_generic'    => 'Er is iets misgegaan. Probeer het opnieuw.',
     'turnstile_failed' => 'Beveiligingscontrole mislukt. Probeer het opnieuw.',

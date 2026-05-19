@@ -45,6 +45,21 @@ return [
     'register_age_confirm'  => 'I confirm that I am 18 years or older. JombloAI is intended for adults. Any use by minors is the sole responsibility of the user and their parents or guardian.',
     'age_confirm_required'  => 'You must confirm that you are 18 years or older.',
 
+    'guest_title'        => 'Start chatting — no account needed',
+    'guest_subtitle'     => 'Meet your AI partner in seconds.',
+    'guest_name_help'    => 'What should your partner call you?',
+    'guest_gender_help'  => 'Your partner needs to know your gender.',
+    'guest_dob_help'     => 'You can only chat if you are 18 or older.',
+    'guest_button'       => 'Start chatting',
+    'guest_loading'      => 'Starting...',
+    'register_as_guest'  => 'Try without an account',
+    'guest_have_account' => 'Already have an account?',
+    'guest_throttled'    => 'Too many attempts from your network. Please wait a bit, or create an account to keep going.',
+
+    'register_upgrade_title'    => 'Create your account',
+    'register_upgrade_subtitle' => 'Add an email & password to keep your chats and buy credits.',
+    'register_upgrade_back'     => '← Back to chat',
+
     // Errors
     'error_invalid'    => 'Invalid credentials. Please try again.',
     'error_generic'    => 'Something went wrong. Please try again.',

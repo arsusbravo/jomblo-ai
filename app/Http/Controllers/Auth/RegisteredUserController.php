@@ -6,10 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Hash;
-use App\Rules\Turnstile;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
@@ -22,36 +21,28 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): Response
     {
-        $turnstile = ! empty(config('services.turnstile.secret'))
-            ? ['required', new Turnstile]
-            : ['nullable'];
+        /** @var \App\Models\User|null $current */
+        $current = Auth::user();
 
+        // Registration is upgrade-only: you must have a guest session first.
+        if (! $current || ! $current->isGuest()) {
+            return response()->json(['message' => 'guest_required'], 403);
+        }
+
+        // The guest already gave name / gender / date_of_birth at /try and
+        // confirmed 18+ — only email + password are needed to unlock paying.
         $request->validate([
-            'cf_turnstile_response' => $turnstile,
-            'name'          => ['required', 'string', 'max:255'],
-            'gender'        => ['required', 'in:male,female'],
-            'email'         => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
-            'date_of_birth' => ['required', 'date', 'before_or_equal:' . now()->subYears(18)->toDateString()],
-            'age_confirm'   => ['accepted'],
-        ], [
-            'date_of_birth.required'         => __('auth.dob_required'),
-            'date_of_birth.date'             => __('auth.dob_invalid'),
-            'date_of_birth.before_or_equal'  => __('auth.dob_underage'),
-            'age_confirm.accepted'           => __('auth.age_confirm_required'),
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name'          => $request->name,
-            'gender'        => $request->gender,
-            'email'         => $request->email,
-            'password'      => Hash::make($request->string('password')),
-            'date_of_birth' => $request->date_of_birth,
+        $current->update([
+            'email'    => $request->email,
+            'password' => Hash::make($request->string('password')),
+            'is_guest' => false,
         ]);
 
-        event(new Registered($user));
-
-        Auth::login($user);
+        event(new Registered($current));
 
         return response()->noContent();
     }

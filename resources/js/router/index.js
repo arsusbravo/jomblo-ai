@@ -22,7 +22,8 @@ const routes = [
         meta: { requiresGuest: true },
         children: [
             { path: 'login', name: 'login', component: () => import('@/pages/auth/LoginPage.vue') },
-            { path: 'register', name: 'register', component: () => import('@/pages/auth/RegisterPage.vue') },
+            { path: 'try', name: 'guest', component: () => import('@/pages/auth/GuestPage.vue') },
+            { path: 'register', name: 'register', meta: { requiresGuestUpgrade: true }, component: () => import('@/pages/auth/RegisterPage.vue') },
         ],
     },
 
@@ -65,7 +66,17 @@ router.beforeEach(async (to) => {
 
     await auth.fetchUser()
 
-    if (to.meta.requiresGuest && auth.isAuthenticated) {
+    // /register is upgrade-only: you must have a guest session first.
+    if (to.meta.requiresGuestUpgrade) {
+        if (!auth.isAuthenticated) return { name: 'guest' }            // haven't tried yet
+        if (!auth.isGuest) {                                           // already a full account
+            return auth.isAdmin ? { name: 'admin.dashboard' } : { name: 'user.dashboard' }
+        }
+        return // authenticated guest → allow the upgrade page
+    }
+
+    // Guests (no-account sessions) may still reach /register to upgrade in place.
+    if (to.meta.requiresGuest && auth.isAuthenticated && !auth.isGuest) {
         return auth.isAdmin ? { name: 'admin.dashboard' } : { name: 'user.dashboard' }
     }
 

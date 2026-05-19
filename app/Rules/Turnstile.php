@@ -10,12 +10,12 @@ class Turnstile implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $secret = config('services.turnstile.secret');
-
-        // Skip verification in local development (no key configured)
-        if (empty($secret)) {
+        // Disabled on local / when no secret configured
+        if (! config('services.turnstile.enabled')) {
             return;
         }
+
+        $secret = config('services.turnstile.secret');
 
         $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
             'secret'   => $secret,

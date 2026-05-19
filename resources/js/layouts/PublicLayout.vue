@@ -21,7 +21,7 @@
             <template v-else>
               <RouterLink to="/login" class="text-gray-600 hover:text-indigo-600 transition-colors text-sm">{{ i18n.__('public.nav_login') }}</RouterLink>
               <RouterLink
-                to="/register"
+                to="/try"
                 class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold"
               >{{ i18n.__('public.nav_get_started') }}</RouterLink>
             </template>
@@ -80,7 +80,7 @@
               class="block px-3 py-2.5 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors text-sm font-medium"
             >{{ i18n.__('public.nav_login') }}</RouterLink>
             <RouterLink
-              to="/register"
+              to="/try"
               @click="mobileOpen = false"
               class="block px-3 py-2.5 rounded-xl bg-indigo-600 text-white text-center text-sm font-semibold hover:bg-indigo-700 transition-colors mt-2"
             >{{ i18n.__('public.nav_get_started') }}</RouterLink>

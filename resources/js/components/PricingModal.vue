@@ -28,8 +28,30 @@
           </button>
         </div>
 
+        <!-- Guest: must create an account first -->
+        <div v-if="gateState === 'guest'" class="px-6 py-8 text-center space-y-4">
+          <p class="text-3xl">🔒</p>
+          <p class="text-gray-600 text-sm">{{ i18n.__('user.pricing_register_required') }}</p>
+          <button
+            @click="goRegister"
+            class="w-full py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          >{{ i18n.__('user.guest_register_cta') }}</button>
+        </div>
+
+        <!-- Registered but email not verified -->
+        <div v-else-if="gateState === 'unverified'" class="px-6 py-8 text-center space-y-4">
+          <p class="text-3xl">📧</p>
+          <p class="text-gray-600 text-sm">{{ i18n.__('user.pricing_verify_required') }}</p>
+          <button
+            v-if="!resent"
+            @click="resendVerification"
+            class="w-full py-2.5 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
+          >{{ i18n.__('user.verify_resend') }}</button>
+          <p v-else class="text-green-600 text-sm font-medium">{{ i18n.__('user.verify_resent') }}</p>
+        </div>
+
         <!-- Plans -->
-        <div class="p-4 grid grid-cols-3 gap-3">
+        <div v-else class="p-4 grid grid-cols-3 gap-3">
           <div
             v-for="plan in plans"
             :key="plan.id"
@@ -84,18 +106,43 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
+import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
 
 const props = defineProps({ show: Boolean })
-defineEmits(['close'])
+const emit = defineEmits(['close'])
 
 const i18n = useI18nStore()
+const auth = useAuthStore()
+const router = useRouter()
 const plans = ref([])
 const currency = ref('EUR')
 const buying = ref(false)
 const buyError = ref('')
+const resent = ref(false)
+
+const gateState = computed(() => {
+  if (auth.isGuest) return 'guest'
+  if (!auth.emailVerified) return 'unverified'
+  return 'ok'
+})
+
+function goRegister() {
+  emit('close')
+  router.push({ name: 'register' })
+}
+
+async function resendVerification() {
+  try {
+    await api.post('/email/verification-notification')
+  } catch {
+    // throttled or already sent — same UX
+  }
+  resent.value = true
+}
 
 watch(() => props.show, async (val) => {
   if (val && !plans.value.length) {
@@ -122,9 +169,11 @@ async function handleBuy(planId) {
     window.location.href = data.url
   } catch (e) {
     buying.value = false
-    buyError.value = e.response?.status === 503
-      ? i18n.__('user.pricing_unavailable')
-      : i18n.__('auth.error_generic')
+    const msg = e.response?.data?.message
+    if (msg === 'register_required') buyError.value = i18n.__('user.pricing_register_required')
+    else if (msg === 'email_verification_required') buyError.value = i18n.__('user.pricing_verify_required')
+    else if (e.response?.status === 503) buyError.value = i18n.__('user.pricing_unavailable')
+    else buyError.value = i18n.__('auth.error_generic')
   }
 }
 </script>

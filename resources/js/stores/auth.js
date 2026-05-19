@@ -8,6 +8,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => !!user.value)
     const isAdmin = computed(() => user.value?.role === 'admin')
+    const isGuest = computed(() => !!user.value?.is_guest)
+    const emailVerified = computed(() => !!user.value?.email_verified_at)
 
     async function fetchUser() {
         try {
@@ -30,6 +32,12 @@ export const useAuthStore = defineStore('auth', () => {
         await fetchUser()
     }
 
+    async function guestRegister(formData) {
+        await api.get('/sanctum/csrf-cookie')
+        await api.post('/register/guest', formData)
+        await fetchUser()
+    }
+
     async function logout() {
         try {
             await api.post('/logout')
@@ -39,5 +47,5 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
     }
 
-    return { user, loading, isAuthenticated, isAdmin, fetchUser, login, register, logout }
+    return { user, loading, isAuthenticated, isAdmin, isGuest, emailVerified, fetchUser, login, register, guestRegister, logout }
 })

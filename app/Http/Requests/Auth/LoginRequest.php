@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
         // Require + verify the Turnstile token only when Turnstile is configured.
         // 'required' is essential: a custom rule object is non-implicit and would
         // otherwise be skipped entirely when the token is empty/missing.
-        $turnstile = ! empty(config('services.turnstile.secret'))
+        $turnstile = config('services.turnstile.enabled')
             ? ['required', new Turnstile]
             : ['nullable'];
 

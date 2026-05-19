@@ -41,7 +41,7 @@
 
     <p class="mt-6 text-center text-sm text-gray-600">
       {{ i18n.__('auth.login_no_account') }}
-      <RouterLink to="/register" class="text-indigo-600 font-medium hover:underline">{{ i18n.__('auth.login_register') }}</RouterLink>
+      <RouterLink to="/try" class="text-indigo-600 font-medium hover:underline">{{ i18n.__('auth.register_as_guest') }}</RouterLink>
     </p>
   </div>
 </template>
@@ -60,7 +60,7 @@ const form = ref({ email: '', password: '' })
 const loading = ref(false)
 const error = ref('')
 
-const turnstileEnabled = !!import.meta.env.VITE_TURNSTILE_SITE_KEY
+const turnstileEnabled = !!import.meta.env.VITE_TURNSTILE_SITE_KEY && !window.location.hostname.endsWith('.test')
 const turnstileContainer = ref(null)
 const turnstileToken = ref('')
 let turnstileWidgetId = null

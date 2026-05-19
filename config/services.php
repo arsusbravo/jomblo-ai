@@ -44,6 +44,9 @@ return [
     'turnstile' => [
         'site_key' => env('VITE_TURNSTILE_SITE_KEY'),
         'secret'   => env('TURNSTILE_SECRET_KEY'),
+        // Disabled on local (.test / Herd) — only enforced when a secret is set
+        // and the app is not running in the local environment.
+        'enabled'  => env('APP_ENV') !== 'local' && ! empty(env('TURNSTILE_SECRET_KEY')),
     ],
 
     'stripe' => [

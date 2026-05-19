@@ -33,9 +33,18 @@ class PaymentController extends Controller
             return response()->json(['message' => 'payments_not_configured'], 503);
         }
 
+        $user = $request->user();
+
+        if ($user->isGuest()) {
+            return response()->json(['message' => 'register_required'], 403);
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'email_verification_required'], 403);
+        }
+
         Stripe::setApiKey($secret);
 
-        $user = $request->user();
         $base = rtrim(config('app.url'), '/');
 
         // Reuse one Stripe customer per user; default the billing country to NL so

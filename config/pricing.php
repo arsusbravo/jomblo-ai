@@ -3,6 +3,13 @@
 return [
     'currency' => 'EUR',
 
+    // Free message allowance for guest (no-account) users — smaller than the
+    // registered default (20) to limit cookie-reset farming.
+    'guest_credits' => (int) env('GUEST_CREDITS', 10),
+
+    // Max new guest accounts per IP per hour (anti-farming backstop).
+    'guest_register_per_hour' => (int) env('GUEST_REGISTER_PER_HOUR', 5),
+
     'plans' => [
         [
             'id'              => 'starter',

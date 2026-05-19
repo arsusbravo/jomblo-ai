@@ -41,6 +41,21 @@ return [
     'register_age_confirm'  => "Je confirme avoir 18 ans ou plus. JombloAI est destiné aux adultes. Toute utilisation par des mineurs relève de la seule responsabilité de l'utilisateur et de ses parents ou tuteurs.",
     'age_confirm_required'  => 'Vous devez confirmer que vous avez 18 ans ou plus.',
 
+    'guest_title'        => 'Commencez à chatter — sans compte',
+    'guest_subtitle'     => 'Rencontrez votre partenaire IA en quelques secondes.',
+    'guest_name_help'    => 'Comment votre partenaire doit-il vous appeler ?',
+    'guest_gender_help'  => 'Votre partenaire doit connaître votre genre.',
+    'guest_dob_help'     => 'Vous ne pouvez chatter que si vous avez 18 ans ou plus.',
+    'guest_button'       => 'Commencer à chatter',
+    'guest_loading'      => 'Démarrage...',
+    'register_as_guest'  => 'Essayer sans compte',
+    'guest_have_account' => 'Vous avez déjà un compte ?',
+    'guest_throttled'    => 'Trop de tentatives depuis votre réseau. Patientez un peu, ou créez un compte pour continuer.',
+
+    'register_upgrade_title'    => 'Créez votre compte',
+    'register_upgrade_subtitle' => 'Ajoutez un e-mail et un mot de passe pour conserver vos discussions et acheter des crédits.',
+    'register_upgrade_back'     => '← Retour au chat',
+
     'error_invalid'    => 'Identifiants invalides. Veuillez réessayer.',
     'error_generic'    => 'Une erreur est survenue. Veuillez réessayer.',
     'turnstile_failed' => 'Vérification de sécurité échouée. Veuillez réessayer.',

@@ -12,7 +12,27 @@
       </p>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <!-- Guest: prompt to create an account -->
+    <div v-if="auth.isGuest" class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6 space-y-3">
+      <p class="text-sm text-amber-800">{{ i18n.__('user.guest_banner') }}</p>
+      <button
+        @click="goRegister"
+        class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors"
+      >{{ i18n.__('user.guest_register_cta') }}</button>
+    </div>
+
+    <!-- Registered but email not verified -->
+    <div v-else-if="!auth.emailVerified" class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6 space-y-3">
+      <p class="text-sm text-amber-800">{{ i18n.__('user.pricing_verify_required') }}</p>
+      <button
+        v-if="!resent"
+        @click="resendVerification"
+        class="bg-indigo-50 text-indigo-700 px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-indigo-100 transition-colors"
+      >{{ i18n.__('user.verify_resend') }}</button>
+      <p v-else class="text-green-700 text-sm font-medium">{{ i18n.__('user.verify_resent') }}</p>
+    </div>
+
+    <div v-if="!auth.isGuest" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <form @submit.prevent="handleSave" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.__('user.profile_name') }}</label>
@@ -73,12 +93,28 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useI18nStore } from '@/stores/i18n'
 
 const auth = useAuthStore()
 const i18n = useI18nStore()
+const router = useRouter()
+const resent = ref(false)
+
+function goRegister() {
+  router.push({ name: 'register' })
+}
+
+async function resendVerification() {
+  try {
+    await api.post('/email/verification-notification')
+  } catch {
+    // throttled or already sent — same UX
+  }
+  resent.value = true
+}
 
 const isUnlimited = computed(() => {
   const until = auth.user?.unlimited_until

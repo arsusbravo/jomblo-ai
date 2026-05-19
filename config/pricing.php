@@ -10,6 +10,11 @@ return [
     // Max new guest accounts per IP per hour (anti-farming backstop).
     'guest_register_per_hour' => (int) env('GUEST_REGISTER_PER_HOUR', 5),
 
+    // Inactive-account pruning (days). Guests: no activity for N days.
+    // Free registered accounts: never chatted AND older than N days.
+    'guest_prune_days' => (int) env('GUEST_PRUNE_DAYS', 14),
+    'free_prune_days'  => (int) env('FREE_PRUNE_DAYS', 30),
+
     'plans' => [
         [
             'id'              => 'starter',

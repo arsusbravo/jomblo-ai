@@ -89,4 +89,22 @@ router.beforeEach(async (to) => {
     }
 })
 
+// After a deploy, a still-open SPA may try to lazy-load a chunk filename that
+// no longer exists. Reload once to pull the fresh build instead of dead-ending.
+router.onError((error, to) => {
+    const msg = error?.message || ''
+    const isChunkError =
+        /Failed to fetch dynamically imported module/i.test(msg) ||
+        /Importing a module script failed/i.test(msg) ||
+        /error loading dynamically imported module/i.test(msg)
+
+    if (isChunkError && !sessionStorage.getItem('chunk-reloaded')) {
+        sessionStorage.setItem('chunk-reloaded', '1')
+        window.location.assign(to?.fullPath || window.location.pathname)
+    }
+})
+
+// Clear the one-shot guard once a navigation completes successfully.
+router.afterEach(() => sessionStorage.removeItem('chunk-reloaded'))
+
 export default router

@@ -11,9 +11,16 @@ Route::get('/force-logout', function () {
     return redirect('/login');
 });
 
-// All web routes serve the Vue SPA
+// All web routes serve the Vue SPA.
+// The HTML must never be cached: it references hashed asset filenames that
+// change every deploy. A stale HTML => browser requests deleted chunks =>
+// "Failed to fetch dynamically imported module". The hashed assets themselves
+// are still safely cacheable (their names change per build).
 Route::get('/{any?}', function () {
-    return view('app');
+    return response()
+        ->view('app')
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache');
 })->where('any', '.*');
 
 require __DIR__.'/auth.php';

@@ -29,7 +29,6 @@ class PublicController extends Controller
         $pick = fn(string $gender) => Character::where('is_active', true)
             ->where('gender', $gender)
             ->whereNotNull('avatar_path')
-            ->withCount(['conversations as chatters_count' => fn($q) => $q->has('messages')])
             ->orderByDesc('chatters_count')
             ->inRandomOrder()
             ->limit(4)

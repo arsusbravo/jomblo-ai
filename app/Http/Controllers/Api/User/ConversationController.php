@@ -52,10 +52,18 @@ class ConversationController extends Controller
             'content' => ['required', 'string', 'max:4000'],
         ]);
 
+        // Capture "this is the user's first ever message to this character"
+        // BEFORE saving — bump the persistent lifetime counter once.
+        $isFirstMessage = $conversation->messages()->doesntExist();
+
         $userMessage = $conversation->messages()->create([
             'role' => 'user',
             'content' => $request->content,
         ]);
+
+        if ($isFirstMessage) {
+            $conversation->character()->increment('chatters_count');
+        }
 
         $history = $conversation->messages()->orderBy('created_at')->get();
 

@@ -12,9 +12,9 @@ class CharacterController extends Controller
 {
     public function index(): JsonResponse
     {
-        $characters = Character::withCount(['conversations as chatters_count' => fn($q) => $q->has('messages')])
-            ->orderBy('name')
-            ->get();
+        // chatters_count is now a persistent column on characters (incremented
+        // the first time a user sends a message), so no withCount needed.
+        $characters = Character::orderBy('name')->get();
 
         return response()->json(['characters' => $characters]);
     }

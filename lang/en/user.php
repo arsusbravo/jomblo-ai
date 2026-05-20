@@ -62,6 +62,15 @@ return [
     'verify_resent'          => 'Verification email sent.',
     'upgrade_title'          => 'Create your account',
     'upgrade_subtitle'       => 'Keep your chats and unlock purchases.',
+    'danger_title'           => 'Danger zone',
+    'danger_delete_account'  => 'Delete my account',
+    'danger_warning'         => 'This permanently deletes your account and all your chat history. This cannot be undone.',
+    'danger_confirm_prompt'  => 'Type DELETE to confirm.',
+    'danger_confirm_button'  => 'Permanently delete',
+    'danger_deleting'        => 'Deleting...',
+    'danger_cancel'          => 'Cancel',
+    'danger_credits_warning'   => 'You still have :count messages left — they will be lost.',
+    'danger_unlimited_warning' => 'You have unlimited access active until :date — you will lose it.',
 
     // Profile
     'profile_balance'    => 'Your balance',

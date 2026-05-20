@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'auth.user'])->prefix('user')->group(function
     Route::get('/dashboard', [UserController::class, 'dashboard']);
     Route::get('/profile', [UserController::class, 'profile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::delete('/profile', [UserController::class, 'destroyAccount']);
     Route::get('/characters', [UserCharacterController::class, 'index']);
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::get('/conversations/{character}', [ConversationController::class, 'show']);

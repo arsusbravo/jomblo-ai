@@ -88,6 +88,58 @@
         </button>
       </form>
     </div>
+
+    <!-- Danger zone -->
+    <div v-if="!auth.isAdmin" class="bg-white rounded-2xl shadow-sm border border-red-200 p-6 mt-6">
+      <h3 class="text-base font-bold text-red-600 mb-1">{{ i18n.__('user.danger_title') }}</h3>
+      <p class="text-sm text-gray-500 mb-4">{{ i18n.__('user.danger_warning') }}</p>
+      <button
+        @click="showDeleteModal = true"
+        class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors"
+      >{{ i18n.__('user.danger_delete_account') }}</button>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="closeDeleteModal">
+      <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-6 space-y-4">
+          <p class="text-3xl text-center">⚠️</p>
+          <h3 class="text-lg font-bold text-gray-900 text-center">{{ i18n.__('user.danger_delete_account') }}</h3>
+          <p class="text-sm text-gray-600 text-center">{{ i18n.__('user.danger_warning') }}</p>
+          <p
+            v-if="isUnlimited"
+            class="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center"
+          >{{ i18n.__('user.danger_unlimited_warning', { date: unlimitedDate }) }}</p>
+          <p
+            v-else-if="credits > 0"
+            class="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center"
+          >{{ i18n.__('user.danger_credits_warning', { count: credits }) }}</p>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">{{ i18n.__('user.danger_confirm_prompt') }}</label>
+            <input
+              v-model="deleteConfirm"
+              type="text"
+              placeholder="DELETE"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
+              autocomplete="off"
+            />
+          </div>
+          <p v-if="deleteError" class="text-sm text-red-500 text-center">{{ deleteError }}</p>
+          <div class="flex gap-3 pt-2">
+            <button
+              @click="closeDeleteModal"
+              :disabled="deleting"
+              class="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-60"
+            >{{ i18n.__('user.danger_cancel') }}</button>
+            <button
+              @click="deleteAccount"
+              :disabled="deleting || deleteConfirm !== 'DELETE'"
+              class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >{{ deleting ? i18n.__('user.danger_deleting') : i18n.__('user.danger_confirm_button') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -114,6 +166,33 @@ async function resendVerification() {
     // throttled or already sent — same UX
   }
   resent.value = true
+}
+
+const showDeleteModal = ref(false)
+const deleteConfirm = ref('')
+const deleting = ref(false)
+const deleteError = ref('')
+
+function closeDeleteModal() {
+  if (deleting.value) return
+  showDeleteModal.value = false
+  deleteConfirm.value = ''
+  deleteError.value = ''
+}
+
+async function deleteAccount() {
+  if (deleteConfirm.value !== 'DELETE') return
+  deleting.value = true
+  deleteError.value = ''
+  try {
+    await api.delete('/api/user/profile?confirm=DELETE')
+    auth.user = null
+    // Hard navigation clears any in-memory state cleanly post-deletion
+    window.location.href = '/'
+  } catch (e) {
+    deleting.value = false
+    deleteError.value = e.response?.data?.message ?? i18n.__('auth.error_generic')
+  }
 }
 
 const isUnlimited = computed(() => {

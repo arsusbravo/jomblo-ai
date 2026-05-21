@@ -97,8 +97,40 @@
 
     <!-- Input -->
     <div class="relative bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 py-4 shrink-0">
-      <form @submit.prevent="sendMessage" class="flex items-end gap-3">
+      <!-- Emoji popover -->
+      <div
+        v-if="showEmojis"
+        ref="emojiPopover"
+        class="absolute bottom-full left-4 mb-2 w-72 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-10"
+      >
+        <div v-for="group in emojiGroups" :key="group.label" class="mb-2 last:mb-0">
+          <p class="text-[10px] uppercase tracking-wide text-gray-400 mb-1 px-1">{{ group.label }}</p>
+          <div class="grid grid-cols-8 gap-1">
+            <button
+              v-for="e in group.emojis"
+              :key="e"
+              type="button"
+              @click="insertEmoji(e)"
+              class="text-xl w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-colors"
+            >{{ e }}</button>
+          </div>
+        </div>
+      </div>
+
+      <form @submit.prevent="sendMessage" class="flex items-end gap-2">
+        <button
+          type="button"
+          @click.stop="toggleEmojis"
+          :disabled="sending || creditsRemaining === 0"
+          class="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          aria-label="Insert emoji"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
         <textarea
+          ref="inputEl"
           v-model="input"
           @keydown.enter.exact.prevent="sendMessage"
           rows="1"
@@ -165,7 +197,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useI18nStore } from '@/stores/i18n'
@@ -181,6 +213,44 @@ const character = ref(null)
 const conversation = ref(null)
 const messages = ref([])
 const input = ref('')
+const inputEl = ref(null)
+const showEmojis = ref(false)
+const emojiPopover = ref(null)
+
+const emojiGroups = [
+  { label: 'Smileys', emojis: ['😀','😁','😂','🤣','😊','😍','🥰','😘','😉','😎','🤔','😏','😴','🤤','😋','😜','🤩','🥺','😢','😭','😳','😡','🙄','😬'] },
+  { label: 'Hearts',  emojis: ['❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💕','💖','💗','💓','💞','💝','💘','💌','💔','❣️','💋'] },
+  { label: 'Hands',   emojis: ['👍','👎','👏','🙏','🤝','✋','👋','🤗','💪','✌️','🤞','👌','🤘','🙌','🤲','👀'] },
+  { label: 'Vibes',   emojis: ['🔥','✨','🎉','🌹','🌺','💯','⭐','🌙','☀️','🌈','☕','🍷','🍸','🥂','🍫','🍓'] },
+]
+
+function toggleEmojis() {
+  showEmojis.value = !showEmojis.value
+}
+
+function insertEmoji(emoji) {
+  const el = inputEl.value
+  if (!el) {
+    input.value += emoji
+    return
+  }
+  const start = el.selectionStart ?? input.value.length
+  const end   = el.selectionEnd   ?? input.value.length
+  input.value = input.value.slice(0, start) + emoji + input.value.slice(end)
+  nextTick(() => {
+    el.focus()
+    const pos = start + emoji.length
+    el.setSelectionRange(pos, pos)
+  })
+}
+
+function onDocMousedown(e) {
+  if (!showEmojis.value) return
+  if (emojiPopover.value && !emojiPopover.value.contains(e.target)
+      && !e.target.closest('[aria-label="Insert emoji"]')) {
+    showEmojis.value = false
+  }
+}
 const sending = ref(false)
 const loadingConversation = ref(true)
 const messagesEl = ref(null)
@@ -210,6 +280,11 @@ onMounted(async () => {
     await nextTick()
     scrollToBottom()
   }
+  document.addEventListener('mousedown', onDocMousedown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', onDocMousedown)
 })
 
 async function sendMessage() {
@@ -223,6 +298,7 @@ async function sendMessage() {
 
   input.value = ''
   sending.value = true
+  showEmojis.value = false
 
   messages.value.push({ id: Date.now(), role: 'user', content })
   await nextTick()

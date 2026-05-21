@@ -74,6 +74,10 @@
               class="text-xs px-2 py-0.5 rounded-full font-medium capitalize"
               :class="character.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'"
             >{{ character.gender }}</span>
+            <span
+              v-if="character.category"
+              class="text-xs px-2 py-0.5 rounded-full font-medium capitalize bg-gray-100 text-gray-600"
+            >{{ character.category }}</span>
           </div>
           <p class="text-sm text-gray-500 line-clamp-2 mb-4">{{ character.description }}</p>
           <div class="flex gap-2">
@@ -168,6 +172,17 @@
                 <option value="male">Male</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select
+              v-model="form.category"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            >
+              <option value="realistic">Realistic</option>
+              <option value="anime">Anime</option>
+            </select>
           </div>
 
           <div>
@@ -285,6 +300,7 @@ const modal = reactive({ open: false, editing: false, characterId: null })
 const form = reactive({
   name: '',
   gender: 'female',
+  category: 'realistic',
   description: '',
   personality_prompt: '',
   is_active: true,
@@ -306,7 +322,7 @@ function openCreate() {
   modal.open = true
   modal.editing = false
   modal.characterId = null
-  Object.assign(form, { name: '', gender: 'female', description: '', personality_prompt: '', is_active: true })
+  Object.assign(form, { name: '', gender: 'female', category: 'realistic', description: '', personality_prompt: '', is_active: true })
   avatarPreview.value = null
   avatarFile.value = null
   errors.value = []
@@ -319,6 +335,7 @@ function openEdit(character) {
   Object.assign(form, {
     name: character.name,
     gender: character.gender,
+    category: character.category ?? 'realistic',
     description: character.description,
     personality_prompt: character.personality_prompt,
     is_active: character.is_active,
@@ -365,6 +382,7 @@ async function handleSubmit() {
   const formData = new FormData()
   formData.append('name', form.name)
   formData.append('gender', form.gender)
+  formData.append('category', form.category)
   formData.append('description', form.description)
   formData.append('personality_prompt', form.personality_prompt)
   formData.append('is_active', form.is_active ? '1' : '0')

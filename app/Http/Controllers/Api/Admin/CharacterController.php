@@ -24,6 +24,7 @@ class CharacterController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:male,female'],
+            'category' => ['required', 'in:anime,realistic'],
             'description' => ['required', 'string'],
             'personality_prompt' => ['required', 'string'],
             'avatar' => ['nullable', 'image', 'max:1024'],
@@ -38,6 +39,7 @@ class CharacterController extends Controller
         $character = Character::create([
             'name' => $request->name,
             'gender' => $request->gender,
+            'category' => $request->category,
             'description' => $request->description,
             'personality_prompt' => $request->personality_prompt,
             'avatar_path' => $avatarPath,
@@ -52,6 +54,7 @@ class CharacterController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:male,female'],
+            'category' => ['required', 'in:anime,realistic'],
             'description' => ['required', 'string'],
             'personality_prompt' => ['required', 'string'],
             'avatar' => ['nullable', 'image', 'max:1024'],
@@ -68,6 +71,7 @@ class CharacterController extends Controller
         $character->fill([
             'name' => $request->name,
             'gender' => $request->gender,
+            'category' => $request->category,
             'description' => $request->description,
             'personality_prompt' => $request->personality_prompt,
             'is_active' => $request->boolean('is_active', true),

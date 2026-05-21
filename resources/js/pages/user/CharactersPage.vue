@@ -5,6 +5,19 @@
       <p class="text-gray-500 mt-1">{{ i18n.__('user.characters_subtitle') }}</p>
     </div>
 
+    <!-- Category filter -->
+    <div class="flex gap-2 mb-3">
+      <button
+        v-for="f in categoryFilters"
+        :key="f.value"
+        @click="categoryFilter = f.value"
+        class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+        :class="categoryFilter === f.value
+          ? 'bg-indigo-600 text-white'
+          : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600'"
+      >{{ f.label }}</button>
+    </div>
+
     <!-- Gender filter -->
     <div class="flex gap-2 mb-6">
       <button
@@ -86,17 +99,29 @@ const i18n = useI18nStore()
 const characters = ref([])
 const loading = ref(true)
 const genderFilter = ref('female')
+const categoryFilter = ref('all')
 
 const filters = computed(() => [
   { value: 'female', label: i18n.__('user.characters_filter_female') },
   { value: 'male',   label: i18n.__('user.characters_filter_male') },
 ])
 
-const filteredCharacters = computed(() =>
-  genderFilter.value === 'all'
-    ? characters.value
-    : characters.value.filter(c => c.gender === genderFilter.value)
-)
+const categoryFilters = computed(() => [
+  { value: 'all',       label: i18n.__('user.characters_category_all') },
+  { value: 'realistic', label: i18n.__('user.characters_category_realistic') },
+  { value: 'anime',     label: i18n.__('user.characters_category_anime') },
+])
+
+const filteredCharacters = computed(() => {
+  let r = characters.value
+  if (genderFilter.value !== 'all') {
+    r = r.filter(c => c.gender === genderFilter.value)
+  }
+  if (categoryFilter.value !== 'all') {
+    r = r.filter(c => c.category === categoryFilter.value)
+  }
+  return r
+})
 
 // Infinite scroll: 3 per load on mobile, 6 on tablet/desktop
 const pageSizeFor = () => (window.innerWidth < 640 ? 3 : 6)
@@ -112,8 +137,8 @@ function onResize() {
   pageSize.value = pageSizeFor()
 }
 
-// Switching gender restarts paging from the top
-watch(genderFilter, () => {
+// Switching either filter restarts paging from the top
+watch([genderFilter, categoryFilter], () => {
   visibleCount.value = pageSize.value
 })
 

@@ -23,6 +23,9 @@ return [
     'characters_filter_all'    => 'Tous',
     'characters_filter_female' => 'Féminin',
     'characters_filter_male'   => 'Masculin',
+    'characters_category_all'       => 'Tous',
+    'characters_category_anime'     => 'Anime',
+    'characters_category_realistic' => 'Réaliste',
 
     'chat_say_hi'      => 'Dites bonjour à :name !',
     'chat_start'       => 'Commencez la conversation ci-dessous.',

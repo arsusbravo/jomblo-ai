@@ -13,6 +13,7 @@ class Character extends Model
     protected $fillable = [
         'name',
         'gender',
+        'category',
         'description',
         'personality_prompt',
         'avatar_path',

@@ -26,6 +26,9 @@ return [
     'characters_filter_all' => 'All',
     'characters_filter_female' => 'Female',
     'characters_filter_male'   => 'Male',
+    'characters_category_all'       => 'All',
+    'characters_category_anime'     => 'Anime',
+    'characters_category_realistic' => 'Realistic',
 
     // Chat
     'chat_say_hi'      => 'Say hi to :name!',

@@ -23,6 +23,9 @@ return [
     'characters_filter_all'    => 'Alle',
     'characters_filter_female' => 'Weiblich',
     'characters_filter_male'   => 'Männlich',
+    'characters_category_all'       => 'Alle',
+    'characters_category_anime'     => 'Anime',
+    'characters_category_realistic' => 'Realistisch',
 
     'chat_say_hi'      => 'Sag Hallo zu :name!',
     'chat_start'       => 'Beginne das Gespräch unten.',

@@ -23,6 +23,9 @@ return [
     'characters_filter_all'    => 'Alle',
     'characters_filter_female' => 'Vrouwelijk',
     'characters_filter_male'   => 'Mannelijk',
+    'characters_category_all'       => 'Alle',
+    'characters_category_anime'     => 'Anime',
+    'characters_category_realistic' => 'Realistisch',
 
     'chat_say_hi'      => 'Zeg hoi tegen :name!',
     'chat_start'       => 'Begin het gesprek hieronder.',

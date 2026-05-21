@@ -11,7 +11,12 @@ Route::get('/force-logout', function () {
     return redirect('/login');
 });
 
-// All web routes serve the Vue SPA.
+// Register explicit auth routes (login, register, OAuth callbacks, verify email)
+// BEFORE the SPA catch-all — otherwise the catch-all swallows every GET and
+// the auth routes never match. Order matters in Laravel routing.
+require __DIR__.'/auth.php';
+
+// All other web routes serve the Vue SPA.
 // The HTML must never be cached: it references hashed asset filenames that
 // change every deploy. A stale HTML => browser requests deleted chunks =>
 // "Failed to fetch dynamically imported module". The hashed assets themselves
@@ -22,5 +27,3 @@ Route::get('/{any?}', function () {
         ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
         ->header('Pragma', 'no-cache');
 })->where('any', '.*');
-
-require __DIR__.'/auth.php';

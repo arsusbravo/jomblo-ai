@@ -38,18 +38,6 @@
           >{{ i18n.__('user.guest_register_cta') }}</button>
         </div>
 
-        <!-- Registered but email not verified -->
-        <div v-else-if="gateState === 'unverified'" class="px-6 py-8 text-center space-y-4">
-          <p class="text-3xl">📧</p>
-          <p class="text-gray-600 text-sm">{{ i18n.__('user.pricing_verify_required') }}</p>
-          <button
-            v-if="!resent"
-            @click="resendVerification"
-            class="w-full py-2.5 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
-          >{{ i18n.__('user.verify_resend') }}</button>
-          <p v-else class="text-green-600 text-sm font-medium">{{ i18n.__('user.verify_resent') }}</p>
-        </div>
-
         <!-- Plans -->
         <div v-else class="p-4 grid grid-cols-3 gap-3">
           <div
@@ -122,26 +110,12 @@ const plans = ref([])
 const currency = ref('EUR')
 const buying = ref(false)
 const buyError = ref('')
-const resent = ref(false)
 
-const gateState = computed(() => {
-  if (auth.isGuest) return 'guest'
-  if (!auth.emailVerified) return 'unverified'
-  return 'ok'
-})
+const gateState = computed(() => auth.isGuest ? 'guest' : 'ok')
 
 function goRegister() {
   emit('close')
   router.push({ name: 'register' })
-}
-
-async function resendVerification() {
-  try {
-    await api.post('/email/verification-notification')
-  } catch {
-    // throttled or already sent — same UX
-  }
-  resent.value = true
 }
 
 watch(() => props.show, async (val) => {
@@ -171,7 +145,6 @@ async function handleBuy(planId) {
     buying.value = false
     const msg = e.response?.data?.message
     if (msg === 'register_required') buyError.value = i18n.__('user.pricing_register_required')
-    else if (msg === 'email_verification_required') buyError.value = i18n.__('user.pricing_verify_required')
     else if (e.response?.status === 503) buyError.value = i18n.__('user.pricing_unavailable')
     else buyError.value = i18n.__('auth.error_generic')
   }

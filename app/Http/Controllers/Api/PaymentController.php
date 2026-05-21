@@ -39,10 +39,6 @@ class PaymentController extends Controller
             return response()->json(['message' => 'register_required'], 403);
         }
 
-        if (! $user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'email_verification_required'], 403);
-        }
-
         Stripe::setApiKey($secret);
 
         $base = rtrim(config('app.url'), '/');

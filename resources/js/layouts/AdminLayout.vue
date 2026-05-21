@@ -1,17 +1,37 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex">
+  <div class="min-h-screen bg-gray-100 md:flex">
+    <!-- Mobile backdrop -->
+    <div
+      v-if="sidebarOpen"
+      @click="sidebarOpen = false"
+      class="fixed inset-0 bg-black/50 z-30 md:hidden"
+    ></div>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 text-gray-100 flex flex-col">
+    <aside
+      class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 text-gray-100 flex flex-col transform transition-transform duration-200 md:static md:translate-x-0 md:transform-none"
+      :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+    >
       <div class="h-16 flex items-center px-6 border-b border-gray-700">
-        <RouterLink to="/" class="flex items-center gap-2">
+        <RouterLink to="/" @click="sidebarOpen = false" class="flex items-center gap-2">
           <img :src="'/images/jomblo-logo.png'" alt="JombloAI" class="h-7 w-auto" />
           <span class="text-xl font-bold text-indigo-400">Jomblo<span class="text-fuchsia-400">AI</span></span>
         </RouterLink>
         <span class="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">Admin</span>
+        <button
+          @click="sidebarOpen = false"
+          class="md:hidden ml-auto p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded"
+          aria-label="Close menu"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <nav class="flex-1 px-4 py-6 space-y-1">
         <RouterLink
           to="/admin"
+          @click="sidebarOpen = false"
           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
           exact-active-class="bg-gray-800 text-white font-medium"
         >
@@ -22,6 +42,7 @@
         </RouterLink>
         <RouterLink
           to="/admin/users"
+          @click="sidebarOpen = false"
           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
           active-class="bg-gray-800 text-white font-medium"
         >
@@ -32,6 +53,7 @@
         </RouterLink>
         <RouterLink
           to="/admin/characters"
+          @click="sidebarOpen = false"
           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
           active-class="bg-gray-800 text-white font-medium"
         >
@@ -64,11 +86,20 @@
     </aside>
 
     <!-- Main content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 bg-white shadow-sm flex items-center px-6 border-b border-gray-200">
+    <div class="flex-1 flex flex-col min-h-screen md:min-h-0 overflow-hidden">
+      <header class="h-16 bg-white shadow-sm flex items-center px-4 sm:px-6 border-b border-gray-200 gap-3">
+        <button
+          @click="sidebarOpen = true"
+          class="md:hidden -ml-2 p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          aria-label="Open menu"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
         <h1 class="text-gray-800 font-semibold">Admin Panel</h1>
       </header>
-      <main class="flex-1 overflow-y-auto p-6">
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6">
         <RouterView />
       </main>
     </div>
@@ -76,13 +107,16 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const sidebarOpen = ref(false)
 
 async function handleLogout() {
+  sidebarOpen.value = false
   await auth.logout()
   router.push({ name: 'login' })
 }

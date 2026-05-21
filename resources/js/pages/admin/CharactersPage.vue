@@ -13,6 +13,19 @@
       </button>
     </div>
 
+    <!-- Category filter -->
+    <div class="flex gap-2 mb-3">
+      <button
+        v-for="f in categoryFilters"
+        :key="f.value"
+        @click="categoryFilter = f.value"
+        class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+        :class="categoryFilter === f.value
+          ? 'bg-indigo-600 text-white'
+          : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600'"
+      >{{ f.label }}</button>
+    </div>
+
     <!-- Gender filter -->
     <div class="flex gap-2 mb-6">
       <button
@@ -265,6 +278,7 @@ import api from '@/api'
 const characters = ref([])
 const loading = ref(true)
 const genderFilter = ref('all')
+const categoryFilter = ref('all')
 
 const filters = [
   { value: 'all',    label: 'All' },
@@ -272,11 +286,22 @@ const filters = [
   { value: 'male',   label: 'Male' },
 ]
 
-const filteredCharacters = computed(() =>
-  genderFilter.value === 'all'
-    ? characters.value
-    : characters.value.filter(c => c.gender === genderFilter.value)
-)
+const categoryFilters = [
+  { value: 'all',       label: 'All' },
+  { value: 'realistic', label: 'Realistic' },
+  { value: 'anime',     label: 'Anime' },
+]
+
+const filteredCharacters = computed(() => {
+  let r = characters.value
+  if (genderFilter.value !== 'all') {
+    r = r.filter(c => c.gender === genderFilter.value)
+  }
+  if (categoryFilter.value !== 'all') {
+    r = r.filter(c => c.category === categoryFilter.value)
+  }
+  return r
+})
 
 // Numbered pagination — 12 per page
 const perPage = 12
@@ -287,7 +312,7 @@ const totalPages = computed(() =>
 const pagedCharacters = computed(() =>
   filteredCharacters.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage)
 )
-watch(genderFilter, () => { currentPage.value = 1 })
+watch([genderFilter, categoryFilter], () => { currentPage.value = 1 })
 watch(totalPages, (tp) => { if (currentPage.value > tp) currentPage.value = tp })
 
 const saving = ref(false)

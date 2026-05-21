@@ -58,6 +58,7 @@ class GoogleAuthController extends Controller
         }
 
         if (! $user) {
+            /** @var \App\Models\User|null $current */
             $current = Auth::user();
 
             // 3) Authenticated guest? Upgrade in place (keep credits + chats).
@@ -86,6 +87,8 @@ class GoogleAuthController extends Controller
 
         Auth::login($user, remember: true);
         $request->session()->regenerate();
+
+        Log::info("Google OAuth: logged in user id={$user->id} email={$user->email} provider_id={$providerId}");
 
         return redirect('/dashboard');
     }

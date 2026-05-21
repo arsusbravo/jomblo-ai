@@ -56,6 +56,10 @@ return [
     'guest_have_account' => 'Already have an account?',
     'guest_throttled'    => 'Too many attempts from your network. Please wait a bit, or create an account to keep going.',
 
+    'continue_with_google' => 'Continue with Google',
+    'or_divider'           => 'or',
+    'social_error'         => "Sign-in didn't complete. Please try again.",
+
     'register_upgrade_title'    => 'Create your account',
     'register_upgrade_subtitle' => 'Add an email & password to keep your chats and buy credits.',
     'register_upgrade_back'     => '← Back to chat',

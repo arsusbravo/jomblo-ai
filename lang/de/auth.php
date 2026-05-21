@@ -52,6 +52,10 @@ return [
     'guest_have_account' => 'Bereits ein Konto?',
     'guest_throttled'    => 'Zu viele Versuche aus deinem Netzwerk. Bitte warte kurz oder erstelle ein Konto, um fortzufahren.',
 
+    'continue_with_google' => 'Mit Google fortfahren',
+    'or_divider'           => 'oder',
+    'social_error'         => 'Die Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut.',
+
     'register_upgrade_title'    => 'Konto erstellen',
     'register_upgrade_subtitle' => 'Füge E-Mail & Passwort hinzu, um deine Chats zu behalten und Credits zu kaufen.',
     'register_upgrade_back'     => '← Zurück zum Chat',

@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'unlimited_until',
         'stripe_customer_id',
         'date_of_birth',
+        'provider',
+        'provider_id',
     ];
 
     protected $hidden = [

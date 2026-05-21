@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GuestSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -21,6 +22,13 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])
     ->middleware('guest')
     ->name('login');
+
+// Google Sign-In — no 'guest' middleware so an authenticated guest can also
+// upgrade in place. Controller handles the find-or-create + upgrade branching.
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+    ->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('google.callback');
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
     ->middleware('guest')

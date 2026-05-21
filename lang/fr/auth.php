@@ -52,6 +52,10 @@ return [
     'guest_have_account' => 'Vous avez déjà un compte ?',
     'guest_throttled'    => 'Trop de tentatives depuis votre réseau. Patientez un peu, ou créez un compte pour continuer.',
 
+    'continue_with_google' => 'Continuer avec Google',
+    'or_divider'           => 'ou',
+    'social_error'         => "La connexion n'a pas abouti. Veuillez réessayer.",
+
     'register_upgrade_title'    => 'Créez votre compte',
     'register_upgrade_subtitle' => 'Ajoutez un e-mail et un mot de passe pour conserver vos discussions et acheter des crédits.',
     'register_upgrade_back'     => '← Retour au chat',

@@ -52,6 +52,10 @@ return [
     'guest_have_account' => 'Heb je al een account?',
     'guest_throttled'    => 'Te veel pogingen vanaf je netwerk. Wacht even, of maak een account aan om door te gaan.',
 
+    'continue_with_google' => 'Doorgaan met Google',
+    'or_divider'           => 'of',
+    'social_error'         => 'Inloggen is niet voltooid. Probeer het opnieuw.',
+
     'register_upgrade_title'    => 'Maak je account aan',
     'register_upgrade_subtitle' => 'Voeg een e-mailadres & wachtwoord toe om je chats te bewaren en credits te kopen.',
     'register_upgrade_back'     => '← Terug naar chat',

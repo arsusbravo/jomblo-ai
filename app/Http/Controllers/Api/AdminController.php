@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Character;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,14 +14,34 @@ class AdminController extends Controller
 {
     public function dashboard(): JsonResponse
     {
+        $since = now()->subDays(7);
+
         $stats = [
-            'total_users' => User::where('role', 'user')->count(),
-            'total_admins' => User::where('role', 'admin')->count(),
+            // Robust against null roles (some accounts predate the role column default).
+            'total_users'   => User::where(fn ($q) => $q->whereNull('role')->orWhere('role', '!=', 'admin'))->count(),
+            'total_admins'  => User::where('role', 'admin')->count(),
+            'guest_users'   => User::where('is_guest', true)->count(),
+            'new_users_7d'  => User::where('created_at', '>=', $since)->count(),
+            'characters'    => [
+                'total'     => Character::count(),
+                'active'    => Character::where('is_active', true)->count(),
+                'inactive'  => Character::where('is_active', false)->count(),
+                'female'    => Character::where('gender', 'female')->count(),
+                'male'      => Character::where('gender', 'male')->count(),
+                'anime'     => Character::where('category', 'anime')->count(),
+                'realistic' => Character::where('category', 'realistic')->count(),
+            ],
         ];
 
+        $newUsers = User::where('created_at', '>=', $since)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get(['id', 'name', 'email', 'is_guest', 'role', 'created_at']);
+
         return response()->json([
-            'message' => 'Welcome to the Admin Dashboard',
-            'stats' => $stats,
+            'message'   => 'Welcome to the Admin Dashboard',
+            'stats'     => $stats,
+            'new_users' => $newUsers,
         ]);
     }
 

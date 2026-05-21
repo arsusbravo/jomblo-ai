@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100 md:flex">
+  <div class="min-h-screen bg-gray-100">
     <!-- Mobile backdrop -->
     <div
       v-if="sidebarOpen"
@@ -9,7 +9,7 @@
 
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 text-gray-100 flex flex-col transform transition-transform duration-200 md:static md:translate-x-0 md:transform-none"
+      class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 text-gray-100 flex flex-col overflow-y-auto transform transition-transform duration-200 md:translate-x-0"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
     >
       <div class="h-16 flex items-center px-6 border-b border-gray-700">
@@ -86,8 +86,8 @@
     </aside>
 
     <!-- Main content -->
-    <div class="flex-1 flex flex-col min-h-screen md:min-h-0 overflow-hidden">
-      <header class="h-16 bg-white shadow-sm flex items-center px-4 sm:px-6 border-b border-gray-200 gap-3">
+    <div class="flex flex-col min-h-screen md:ml-64">
+      <header class="sticky top-0 z-20 h-16 bg-white shadow-sm flex items-center px-4 sm:px-6 border-b border-gray-200 gap-3">
         <button
           @click="sidebarOpen = true"
           class="md:hidden -ml-2 p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -99,7 +99,7 @@
         </button>
         <h1 class="text-gray-800 font-semibold">Admin Panel</h1>
       </header>
-      <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+      <main class="flex-1 p-4 sm:p-6">
         <RouterView />
       </main>
     </div>

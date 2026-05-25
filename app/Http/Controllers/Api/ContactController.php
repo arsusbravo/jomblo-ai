@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SupportMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+use App\Services\BrevoMailer;
 
 class ContactController extends Controller
 {
@@ -49,15 +49,13 @@ class ContactController extends Controller
 
         $body = "New support message from {$user->name} (#{$user->id}).\n\nReply here: {$adminUrl}";
 
-        Mail::send([], [], fn ($mail) => $mail
-            ->to($adminEmail)
-            ->replyTo($user->email, $user->name)
-            ->subject("[JombloAI] New message from {$user->name}")
-            ->text('emails.plain', ['body' => $body])
-            ->withSymfonyMessage(function ($msg) {
-                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Click', 'false');
-                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Open', 'false');
-            })
+        BrevoMailer::sendText(
+            toEmail:      $adminEmail,
+            toName:       'JombloAI Admin',
+            subject:      "[JombloAI] New message from {$user->name}",
+            body:         $body,
+            replyToEmail: $user->email,
+            replyToName:  $user->name,
         );
 
         return response()->json(['message' => $msg], 201);

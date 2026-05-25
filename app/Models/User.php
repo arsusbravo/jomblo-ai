@@ -71,6 +71,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasUnlimited() || $this->hasCredits();
     }
 
+    protected $appends = ['unread_support_count'];
+
+    public function getUnreadSupportCountAttribute(): int
+    {
+        return $this->hasMany(SupportMessage::class)
+            ->where('sender', 'admin')
+            ->whereNull('read_at')
+            ->count();
+    }
+
+    public function supportMessages()
+    {
+        return $this->hasMany(SupportMessage::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

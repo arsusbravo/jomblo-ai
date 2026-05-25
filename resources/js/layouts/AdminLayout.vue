@@ -62,6 +62,18 @@
           </svg>
           AI Characters
         </RouterLink>
+        <RouterLink
+          to="/admin/contact"
+          @click="sidebarOpen = false"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+          active-class="bg-gray-800 text-white font-medium"
+        >
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span class="flex-1">Support</span>
+          <span v-if="adminUnread > 0" class="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+        </RouterLink>
       </nav>
       <div class="px-4 py-4 border-t border-gray-700">
         <div class="flex items-center gap-3 mb-3 px-3">
@@ -107,13 +119,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/api'
 
 const auth = useAuthStore()
 const router = useRouter()
 const sidebarOpen = ref(false)
+const adminUnread = ref(0)
+
+onMounted(async () => {
+  const { data } = await api.get('/api/admin/contact/unread')
+  adminUnread.value = data.unread
+})
 
 async function handleLogout() {
   sidebarOpen.value = false

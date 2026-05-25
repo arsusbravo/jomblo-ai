@@ -37,6 +37,7 @@ const routes = [
             { path: 'profile', name: 'user.profile', component: () => import('@/pages/user/ProfilePage.vue') },
             { path: 'characters', name: 'user.characters', component: () => import('@/pages/user/CharactersPage.vue') },
             { path: 'chat/:characterId', name: 'user.chat', component: () => import('@/pages/user/ChatPage.vue') },
+            { path: 'contact', name: 'user.contact', meta: { requiresRegistered: true }, component: () => import('@/pages/user/ContactPage.vue') },
         ],
     },
 
@@ -49,6 +50,8 @@ const routes = [
             { path: '', name: 'admin.dashboard', component: () => import('@/pages/admin/DashboardPage.vue') },
             { path: 'users', name: 'admin.users', component: () => import('@/pages/admin/UsersPage.vue') },
             { path: 'characters', name: 'admin.characters', component: () => import('@/pages/admin/CharactersPage.vue') },
+            { path: 'contact', name: 'admin.contact', component: () => import('@/pages/admin/ContactPage.vue') },
+            { path: 'contact/:userId', name: 'admin.contact.user', component: () => import('@/pages/admin/ContactPage.vue') },
         ],
     },
 
@@ -86,6 +89,10 @@ router.beforeEach(async (to) => {
 
     if (to.meta.requiresAdmin && !auth.isAdmin) {
         return { name: 'user.dashboard' }
+    }
+
+    if (to.meta.requiresRegistered && auth.isGuest) {
+        return { name: 'register' }
     }
 })
 

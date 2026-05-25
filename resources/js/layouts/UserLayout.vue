@@ -78,6 +78,23 @@
                 {{ i18n.__('user.nav_profile') }}
               </RouterLink>
 
+              <RouterLink
+                v-if="!auth.isGuest"
+                to="/dashboard/contact"
+                @click="menuOpen = false"
+                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                active-class="text-indigo-600 bg-indigo-50"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span class="flex-1">{{ i18n.__('user.nav_contact') }}</span>
+                <span
+                  v-if="auth.user?.unread_support_count > 0"
+                  class="w-2 h-2 rounded-full bg-red-500 shrink-0"
+                />
+              </RouterLink>
+
               <button
                 @click="showPricing = true; menuOpen = false"
                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 transition-colors"

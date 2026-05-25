@@ -47,12 +47,17 @@ class ContactController extends Controller
         $adminEmail = config('mail.support_address', 'info@arsus.nl');
         $adminUrl   = rtrim(config('app.url'), '/') . '/admin/contact/' . $user->id;
 
-        Mail::raw(
-            "New support message from {$user->name} (#{$user->id}).\n\nReply here: {$adminUrl}",
-            fn ($mail) => $mail
-                ->to($adminEmail)
-                ->replyTo($user->email, $user->name)
-                ->subject("[JombloAI] New message from {$user->name}")
+        $body = "New support message from {$user->name} (#{$user->id}).\n\nReply here: {$adminUrl}";
+
+        Mail::send([], [], fn ($mail) => $mail
+            ->to($adminEmail)
+            ->replyTo($user->email, $user->name)
+            ->subject("[JombloAI] New message from {$user->name}")
+            ->text('emails.plain', ['body' => $body])
+            ->withSymfonyMessage(function ($msg) {
+                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Click', 'false');
+                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Open', 'false');
+            })
         );
 
         return response()->json(['message' => $msg], 201);

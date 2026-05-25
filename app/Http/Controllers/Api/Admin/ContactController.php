@@ -80,11 +80,16 @@ class ContactController extends Controller
         // Notify user: just a link, not the content.
         $contactUrl = rtrim(config('app.url'), '/') . '/dashboard/contact';
 
-        Mail::raw(
-            "Hi {$user->name},\n\nYou have a new reply in your support conversation.\n\nClick here to read it: {$contactUrl}\n\n— JombloAI Support",
-            fn ($mail) => $mail
-                ->to($user->email, $user->name)
-                ->subject('You have a new reply — JombloAI Support')
+        $body = "Hi {$user->name},\n\nYou have a new reply in your support conversation.\n\nClick here to read it: {$contactUrl}\n\n— JombloAI Support";
+
+        Mail::send([], [], fn ($mail) => $mail
+            ->to($user->email, $user->name)
+            ->subject('You have a new reply — JombloAI Support')
+            ->text('emails.plain', ['body' => $body])
+            ->withSymfonyMessage(function ($msg) {
+                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Click', 'false');
+                $msg->getHeaders()->addTextHeader('X-Mailin-Track-Open', 'false');
+            })
         );
 
         return response()->json(['message' => $msg], 201);

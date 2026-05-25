@@ -80,7 +80,18 @@ class ContactController extends Controller
         // Notify user: just a link, not the content.
         $contactUrl = rtrim(config('app.url'), '/') . '/dashboard/contact';
 
-        $body = "Hi {$user->name},\n\nYou have a new reply in your support conversation.\n\nClick here to read it: {$contactUrl}\n\n— JombloAI Support";
+        $body = implode("\n\n", [
+            "Hi {$user->name},",
+            "The JombloAI support team has replied to your message.",
+            "Click the link below to read the reply and continue the conversation:",
+            $contactUrl,
+            "If you have any further questions, feel free to send another message through the contact page. We are always happy to help and will get back to you as soon as possible.",
+            "Thank you for using JombloAI.",
+            "---",
+            "Best regards,",
+            "JombloAI Support Team",
+            "This is an automated notification. Please do not reply directly to this email — use the link above to continue the conversation.",
+        ]);
 
         BrevoMailer::sendText(
             toEmail: $user->email,

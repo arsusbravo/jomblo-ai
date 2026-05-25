@@ -47,7 +47,17 @@ class ContactController extends Controller
         $adminEmail = config('mail.support_address', 'info@arsus.nl');
         $adminUrl   = rtrim(config('app.url'), '/') . '/admin/contact/' . $user->id;
 
-        $body = "New support message from {$user->name} (#{$user->id}).\n\nReply here: {$adminUrl}";
+        $body = implode("\n\n", [
+            "You have a new support message on JombloAI.",
+            "From:    {$user->name} (user #{$user->id})",
+            "Email:   {$user->email}",
+            "Click the link below to open the conversation and reply:",
+            $adminUrl,
+            "Please reply as soon as possible so the user gets a good experience.",
+            "---",
+            "This is an automated notification from JombloAI.",
+            "Do not reply directly to this email — use the link above to respond in the admin panel.",
+        ]);
 
         BrevoMailer::sendText(
             toEmail:      $adminEmail,

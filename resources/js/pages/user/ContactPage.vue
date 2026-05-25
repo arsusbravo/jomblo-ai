@@ -91,11 +91,10 @@ const messagesEl = ref(null)
 const inputEl = ref(null)
 
 onMounted(async () => {
+  auth.clearUnreadSupport()
   const { data } = await api.get('/api/user/contact')
   messages.value = data.messages
   loading.value = false
-  // Reset badge since we just read all messages
-  if (auth.user) auth.user.unread_support_count = 0
   await nextTick()
   scrollToBottom()
 })

@@ -47,5 +47,9 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
     }
 
-    return { user, loading, isAuthenticated, isAdmin, isGuest, emailVerified, fetchUser, login, register, guestRegister, logout }
+    function clearUnreadSupport() {
+        if (user.value) user.value = { ...user.value, unread_support_count: 0 }
+    }
+
+    return { user, loading, isAuthenticated, isAdmin, isGuest, emailVerified, fetchUser, login, register, guestRegister, logout, clearUnreadSupport }
 })

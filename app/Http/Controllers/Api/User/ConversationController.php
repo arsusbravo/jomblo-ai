@@ -95,4 +95,16 @@ class ConversationController extends Controller
             'unlimited_until'   => $fresh->unlimited_until,
         ]);
     }
+
+    public function clearMessages(Request $request, Conversation $conversation): JsonResponse
+    {
+        if ($conversation->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $conversation->messages()->delete();
+        $conversation->touch();
+
+        return response()->json(['cleared' => true]);
+    }
 }

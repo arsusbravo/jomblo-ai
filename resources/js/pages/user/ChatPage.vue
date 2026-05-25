@@ -32,6 +32,7 @@
         </div>
       </div>
       <div v-else class="h-5 w-32 bg-gray-100 rounded animate-pulse" />
+
     </div>
 
     <!-- Messages -->
@@ -202,12 +203,14 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
 import { useI18nStore } from '@/stores/i18n'
 import { useAuthStore } from '@/stores/auth'
+import { useChatStore } from '@/stores/chat'
 import PricingModal from '@/components/PricingModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const i18n = useI18nStore()
 const auth = useAuthStore()
+const chatStore = useChatStore()
 
 const character = ref(null)
 const conversation = ref(null)
@@ -245,13 +248,13 @@ function insertEmoji(emoji) {
 }
 
 function onDocMousedown(e) {
-  if (!showEmojis.value) return
-  if (emojiPopover.value && !emojiPopover.value.contains(e.target)
+  if (showEmojis.value && emojiPopover.value && !emojiPopover.value.contains(e.target)
       && !e.target.closest('[aria-label="Insert emoji"]')) {
     showEmojis.value = false
   }
 }
 const sending = ref(false)
+const clearing = ref(false)
 const loadingConversation = ref(true)
 const messagesEl = ref(null)
 const photoOpen = ref(false)
@@ -275,6 +278,7 @@ onMounted(async () => {
     conversation.value = data.conversation
     character.value = data.conversation.character
     messages.value = data.conversation.messages
+    chatStore.conversationId = data.conversation.id
   } finally {
     loadingConversation.value = false
     await nextTick()
@@ -285,6 +289,14 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocMousedown)
+  chatStore.conversationId = null
+})
+
+watch(() => chatStore.pendingClear, async (val) => {
+  if (val) {
+    chatStore.pendingClear = false
+    await clearChat()
+  }
 })
 
 async function sendMessage() {
@@ -326,6 +338,22 @@ async function sendMessage() {
     sending.value = false
     await nextTick()
     scrollToBottom()
+    // On desktop (mouse/trackpad) refocus the input so the user can keep typing.
+    // On mobile/tablet we skip this — auto-focus pops the keyboard and hides the reply.
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      inputEl.value?.focus()
+    }
+  }
+}
+
+async function clearChat() {
+  if (clearing.value) return
+  clearing.value = true
+  try {
+    await api.delete(`/api/user/conversations/${conversation.value.id}/messages`)
+    messages.value = []
+  } finally {
+    clearing.value = false
   }
 }
 

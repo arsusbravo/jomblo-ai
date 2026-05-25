@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'auth.user'])->prefix('user')->group(function
     Route::get('/conversations', [ConversationController::class, 'index']);
     Route::get('/conversations/{character}', [ConversationController::class, 'show']);
     Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);
+    Route::delete('/conversations/{conversation}/messages', [ConversationController::class, 'clearMessages']);
     Route::post('/checkout', [PaymentController::class, 'checkout']);
 });
 

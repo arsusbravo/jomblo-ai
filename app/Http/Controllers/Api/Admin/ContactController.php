@@ -14,28 +14,33 @@ class ContactController extends Controller
     /** List of users who have sent support messages, newest first. */
     public function index(): JsonResponse
     {
-        $threads = User::whereHas('supportMessages')
+        $users = User::whereHas('supportMessages')
             ->withCount([
                 'supportMessages as unread_count' => fn ($q) => $q
                     ->where('sender', 'user')
                     ->whereNull('read_at'),
             ])
-            ->with(['supportMessages' => fn ($q) => $q->latest()->limit(1)])
-            ->orderByDesc(
-                SupportMessage::select('created_at')
-                    ->whereColumn('user_id', 'users.id')
-                    ->latest()
-                    ->limit(1)
-            )
+            ->get();
+
+        // Get the last message per user using MAX(id) — compatible with old MariaDB (no window functions).
+        $lastMessages = SupportMessage::whereIn('user_id', $users->pluck('id'))
+            ->whereIn('id', function ($q) {
+                $q->selectRaw('MAX(id)')->from('support_messages')->groupBy('user_id');
+            })
             ->get()
+            ->keyBy('user_id');
+
+        $threads = $users
             ->map(fn ($u) => [
                 'id'           => $u->id,
                 'name'         => $u->name,
                 'email'        => $u->email,
                 'unread_count' => $u->unread_count,
-                'last_message' => $u->supportMessages->first()?->message,
-                'last_at'      => $u->supportMessages->first()?->created_at,
-            ]);
+                'last_message' => $lastMessages[$u->id]?->message ?? '',
+                'last_at'      => $lastMessages[$u->id]?->created_at,
+            ])
+            ->sortByDesc('last_at')
+            ->values();
 
         return response()->json(['threads' => $threads]);
     }

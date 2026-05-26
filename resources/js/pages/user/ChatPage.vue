@@ -323,7 +323,15 @@ async function sendMessage() {
     )
     const idx = messages.value.findLastIndex(m => m.role === 'user')
     if (idx !== -1) messages.value[idx] = data.user_message
-    messages.value.push(data.ai_message)
+
+    const parts = data.ai_messages
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0) await typingDelay(parts[i - 1].content)
+      messages.value.push(parts[i])
+      await nextTick()
+      scrollToBottom()
+    }
+
     creditsRemaining.value = data.credits_remaining
     if (auth.user) auth.user.message_credits = data.credits_remaining
   } catch (e) {
@@ -361,5 +369,11 @@ function scrollToBottom() {
   if (messagesEl.value) {
     messagesEl.value.scrollTop = messagesEl.value.scrollHeight
   }
+}
+
+function typingDelay(prevText) {
+  const words = prevText.trim().split(/\s+/).length
+  const ms = Math.min(5000, Math.max(1500, words * 150))
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 </script>

@@ -74,10 +74,34 @@ class ConversationController extends Controller
             $user->gender
         );
 
-        $aiMessage = $conversation->messages()->create([
-            'role' => 'assistant',
-            'content' => $aiText,
-        ]);
+        // Split into sentences, then decide how many bubbles based on total length.
+        $text      = trim($aiText);
+        $totalLen  = mb_strlen($text);
+        $sentences = preg_split('/[.!?]+\K\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+        $sentences = array_values(array_filter(array_map('trim', $sentences)));
+
+        if (count($sentences) <= 1 || $totalLen < 120) {
+            // Short or single-sentence reply — one bubble.
+            $parts = [$text];
+        } else {
+            // Longer replies: cap at 2 bubbles up to 300 chars, 3 bubbles beyond that.
+            $max = $totalLen > 300 ? 3 : 2;
+            if (count($sentences) <= $max) {
+                $parts = $sentences;
+            } else {
+                // Merge overflow sentences into the last bubble.
+                $parts   = array_slice($sentences, 0, $max - 1);
+                $parts[] = implode(' ', array_slice($sentences, $max - 1));
+            }
+        }
+
+        $aiMessages = [];
+        foreach ($parts as $part) {
+            $aiMessages[] = $conversation->messages()->create([
+                'role'    => 'assistant',
+                'content' => $part,
+            ]);
+        }
 
         // Unlimited users don't consume credits.
         if (! $user->hasUnlimited()) {
@@ -90,7 +114,7 @@ class ConversationController extends Controller
 
         return response()->json([
             'user_message'      => $userMessage,
-            'ai_message'        => $aiMessage,
+            'ai_messages'       => $aiMessages,
             'credits_remaining' => $fresh->message_credits,
             'unlimited_until'   => $fresh->unlimited_until,
         ]);

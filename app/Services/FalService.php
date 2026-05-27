@@ -35,11 +35,26 @@ class FalService
             throw new \RuntimeException('Image generation failed.');
         }
 
-        // Detect blacked-out images: fal.ai returns has_nsfw_concepts=true and blacks the image.
+        // Layer 1: fal.ai NSFW flag (when the per-request checker fires).
         if ($response->json('has_nsfw_concepts.0') === true) {
             throw new \RuntimeException('content_filtered');
         }
 
-        return $response->json('images.0.url');
+        $imageUrl = $response->json('images.0.url');
+
+        // Layer 2: platform-level filter blacks the image silently (flag stays false).
+        // A solid-black JPEG compresses to ~2–5 KB; a real portrait is always >50 KB.
+        // Only act if Content-Length is actually present — some CDNs omit it.
+        $head = Http::head($imageUrl);
+        $size = (int) $head->header('Content-Length');
+        if ($size > 0 && $size < 20000) {
+            Log::warning('fal.ai returned suspiciously small image (likely blacked out)', [
+                'url'  => $imageUrl,
+                'size' => $size,
+            ]);
+            throw new \RuntimeException('content_filtered');
+        }
+
+        return $imageUrl;
     }
 }

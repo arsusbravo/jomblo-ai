@@ -33,7 +33,10 @@ class ConversationController extends Controller
 
         $conversation->load(['character', 'messages']);
 
-        return response()->json(['conversation' => $conversation]);
+        return response()->json([
+            'conversation'          => $conversation,
+            'free_images_remaining' => $request->user()->freeImagesRemainingThisPeriod(),
+        ]);
     }
 
     public function sendMessage(Request $request, Conversation $conversation): JsonResponse

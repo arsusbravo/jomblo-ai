@@ -37,12 +37,15 @@ class ImageController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        $imageCost = config('pricing.image_credits', 5);
+        $imageCost     = config('pricing.image_credits', 5);
+        $freeRemaining = $user->freeImagesRemainingThisPeriod(); // null = not unlimited
+        $isFree        = $freeRemaining !== null && $freeRemaining > 0;
 
-        if (! $user->hasUnlimited() && $user->message_credits < $imageCost) {
+        if (! $isFree && $user->message_credits < $imageCost) {
             return response()->json([
-                'message'           => 'out_of_credits',
-                'credits_remaining' => $user->message_credits,
+                'message'              => 'out_of_credits',
+                'credits_remaining'    => $user->message_credits,
+                'free_images_remaining' => $freeRemaining,
             ], 402);
         }
 
@@ -108,15 +111,16 @@ class ImageController extends Controller
             'meta'    => ['pose' => $request->pose],
         ]);
 
-        if (! $user->hasUnlimited()) {
+        if (! $isFree) {
             $user->decrement('message_credits', $imageCost);
         }
 
         $conversation->touch();
 
         return response()->json([
-            'image_message'     => $message,
-            'credits_remaining' => $user->fresh()->message_credits,
+            'image_message'          => $message,
+            'credits_remaining'      => $user->fresh()->message_credits,
+            'free_images_remaining'  => $user->freeImagesRemainingThisPeriod(),
         ], 201);
     }
 }

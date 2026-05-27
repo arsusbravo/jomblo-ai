@@ -171,18 +171,26 @@
           />
 
           <!-- Camera button (inside pill, right) -->
-          <button
-            type="button"
-            @click="showPhotoModal = true"
-            :disabled="sending || creditsRemaining === 0 || !character?.avatar_url"
-            :title="i18n.__('user.chat_photo_btn')"
-            class="p-3 text-gray-400 hover:text-indigo-500 transition-colors shrink-0 disabled:opacity-40"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          <div class="relative shrink-0">
+            <button
+              type="button"
+              @click="showPhotoModal = true"
+              :disabled="sending || !character?.avatar_url || (freeImagesRemaining === 0 && creditsRemaining < imageCost)"
+              :title="i18n.__('user.chat_photo_btn')"
+              class="p-3 text-gray-400 hover:text-indigo-500 transition-colors disabled:opacity-40"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <!-- Free image counter badge for unlimited users -->
+            <span
+              v-if="freeImagesRemaining !== null"
+              class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-0.5 rounded-full text-[9px] font-bold flex items-center justify-center leading-none pointer-events-none"
+              :class="freeImagesRemaining > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-red-100 text-red-500'"
+            >{{ freeImagesRemaining }}</span>
+          </div>
         </div>
 
         <!-- Send button -->
@@ -322,9 +330,15 @@ const showPricing = ref(false)
 const imageCost = 5
 
 const creditsRemaining = ref(auth.user?.message_credits ?? 0)
+const freeImagesRemaining = ref(null) // null = not on unlimited plan
+
+const isUnlimited = computed(() => {
+  const until = auth.user?.unlimited_until
+  return until && new Date(until) > new Date()
+})
 
 watch(creditsRemaining, (val) => {
-  if (val === 0) showPricing.value = true
+  if (val === 0 && !isUnlimited.value) showPricing.value = true
 }, { immediate: true })
 
 const creditsColor = computed(() => {
@@ -340,6 +354,7 @@ onMounted(async () => {
     character.value = data.conversation.character
     messages.value = data.conversation.messages
     chatStore.conversationId = data.conversation.id
+    freeImagesRemaining.value = data.free_images_remaining ?? null
   } finally {
     loadingConversation.value = false
     await nextTick()
@@ -443,6 +458,7 @@ async function requestPhoto(pose) {
     messages.value.push(data.image_message)
     creditsRemaining.value = data.credits_remaining
     if (auth.user) auth.user.message_credits = data.credits_remaining
+    if (data.free_images_remaining !== undefined) freeImagesRemaining.value = data.free_images_remaining
     await nextTick()
     scrollToBottom()
   } catch (e) {

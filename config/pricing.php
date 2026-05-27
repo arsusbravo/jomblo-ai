@@ -2,7 +2,8 @@
 
 return [
     'currency'      => 'EUR',
-    'image_credits' => 5,
+    'image_credits'            => 5,
+    'unlimited_image_allowance' => 20,
 
     // Free message allowance for guest (no-account) users — smaller than the
     // registered default (20) to limit cookie-reset farming.

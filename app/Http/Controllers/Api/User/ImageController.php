@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Storage;
 class ImageController extends Controller
 {
     private const POSE_MAP_REALISTIC = [
-        'seductive' => 'seductive gaze, bedroom eyes, flirty smile, alluring, close-up portrait',
-        'lingerie'  => 'wearing lace lingerie, tasteful boudoir style, elegant and sensual',
-        'bikini'    => 'wearing bikini, confident sexy pose, sun-kissed skin',
-        'lying'     => 'lying on bed, sensual boudoir pose, looking at camera seductively',
-        'backpose'  => 'looking seductively over shoulder, back pose, arched back, alluring',
-        'boudoir'   => 'boudoir photography, sitting on bed, sensual lighting, elegant and sexy',
+        'seductive' => 'confident flirty gaze, charming smile, close-up portrait, warm soft light',
+        'lingerie'  => 'wearing lingerie, elegant pin-up style, soft warm light, tasteful',
+        'bikini'    => 'wearing a bikini, relaxed summer pose, beach vibes, natural light',
+        'lying'     => 'lounging on a bed, relaxed pose, soft warm light, looking at camera',
+        'backpose'  => 'looking back over shoulder, graceful back pose, elegant, soft light',
+        'boudoir'   => 'sitting on bed, elegant portrait, warm soft light, tasteful pin-up',
     ];
 
     private const POSE_MAP_ANIME = [
@@ -75,7 +75,7 @@ class ImageController extends Controller
 
         $prompt = $isAnime
             ? "{$poseText}, {$bodyShape}, same outfit as reference image, original clothing preserved, anime illustration, detailed, vibrant colors, high quality"
-            : "{$poseText}, {$bodyShape}, tasteful and sexy, photorealistic, high quality, 4k, professional photography";
+            : "{$poseText}, {$bodyShape}, tasteful, elegant, photorealistic, high quality, 4k, professional photography";
 
         $negative = $isAnime
             ? 'skinny, slim, thin, underweight, bony, petite figure, different outfit, outfit change, costume change, nude, naked, exposed genitals, explicit, pornographic, photograph, realistic, blurry, bad quality, watermark'
@@ -84,10 +84,21 @@ class ImageController extends Controller
         try {
             $imageUrl = FalService::generateImage($imageRef, $prompt, $negative);
         } catch (\RuntimeException $e) {
-            if ($e->getMessage() === 'content_filtered') {
+            if ($e->getMessage() !== 'content_filtered') {
+                return response()->json(['message' => 'generation_failed'], 500);
+            }
+
+            // Retry once with a simpler, safer prompt before giving up.
+            $fallbackPrompt = $isAnime
+                ? "portrait pose, same outfit as reference image, anime illustration, vibrant colors, high quality"
+                : "elegant portrait, soft light, photorealistic, high quality, 4k";
+            $fallbackNegative = 'nude, naked, explicit, blurry, bad quality, watermark';
+
+            try {
+                $imageUrl = FalService::generateImage($imageRef, $fallbackPrompt, $fallbackNegative);
+            } catch (\RuntimeException) {
                 return response()->json(['message' => 'content_filtered'], 422);
             }
-            return response()->json(['message' => 'generation_failed'], 500);
         }
 
         $message = $conversation->messages()->create([

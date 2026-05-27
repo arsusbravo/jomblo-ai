@@ -43,8 +43,32 @@ class OpenRouterService
             ['role' => 'system', 'content' => $systemPrompt],
         ];
 
-        foreach ($history->where('type', 'text') as $msg) {
-            $messages[] = ['role' => $msg->role, 'content' => $msg->content];
+        $poseLabels = [
+            'seductive' => 'seductive',
+            'lingerie'  => 'lingerie boudoir',
+            'bikini'    => 'bikini',
+            'lying'     => 'lying on the bed seductively',
+            'backpose'  => 'back pose looking over my shoulder',
+            'boudoir'   => 'boudoir',
+            'selfie'    => 'selfie',
+            'winking'   => 'winking',
+            'shy'       => 'shy',
+            'action'    => 'action',
+            'sitting'   => 'sitting',
+            'portrait'  => 'portrait',
+        ];
+
+        foreach ($history as $msg) {
+            if ($msg->type === 'image') {
+                $pose      = $msg->meta['pose'] ?? null;
+                $poseLabel = $pose ? ($poseLabels[$pose] ?? $pose) : 'a pose';
+                $messages[] = [
+                    'role'    => 'assistant',
+                    'content' => "[You just sent {$name} a photo of yourself in a {$poseLabel} pose, as they requested]",
+                ];
+            } else {
+                $messages[] = ['role' => $msg->role, 'content' => $msg->content];
+            }
         }
 
         $response = Http::withHeaders([

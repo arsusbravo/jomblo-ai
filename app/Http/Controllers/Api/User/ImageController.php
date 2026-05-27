@@ -92,6 +92,7 @@ class ImageController extends Controller
             'role'    => 'assistant',
             'type'    => 'image',
             'content' => $imageUrl,
+            'meta'    => ['pose' => $request->pose],
         ]);
 
         if (! $user->hasUnlimited()) {

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\User\CharacterController as UserCharacterController;
 use App\Http\Controllers\Api\User\ConversationController;
+use App\Http\Controllers\Api\User\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,7 @@ Route::middleware(['auth:sanctum', 'auth.user'])->prefix('user')->group(function
     Route::get('/conversations/{character}', [ConversationController::class, 'show']);
     Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);
     Route::delete('/conversations/{conversation}/messages', [ConversationController::class, 'clearMessages']);
+    Route::post('/conversations/{conversation}/images', [ImageController::class, 'generate']);
     Route::post('/checkout', [PaymentController::class, 'checkout']);
     Route::get('/contact', [ContactController::class, 'index']);
     Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:10,60');

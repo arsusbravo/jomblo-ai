@@ -19,7 +19,7 @@
         <div
           class="w-10 h-10 rounded-full overflow-hidden shrink-0 cursor-pointer ring-2 ring-transparent hover:ring-indigo-400 transition-all"
           :class="character.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'"
-          @click="character.avatar_url && (photoOpen = true)"
+          @click="character.avatar_url && (selectedPhoto = null, photoOpen = true)"
         >
           <img v-if="character.avatar_url" :src="character.avatar_url" :alt="character.name" class="w-full h-full object-cover" />
           <span v-else class="w-full h-full flex items-center justify-center text-xl">
@@ -66,7 +66,18 @@
               </span>
             </div>
 
+            <!-- Image bubble -->
+            <img
+              v-if="msg.type === 'image'"
+              :src="msg.content"
+              class="max-w-[70%] rounded-2xl rounded-bl-sm shadow-sm cursor-pointer object-cover"
+              style="max-height: 320px"
+              @click="selectedPhoto = msg.content; photoOpen = true"
+            />
+
+            <!-- Text bubble -->
             <div
+              v-else
               class="max-w-[70%] px-4 py-3 rounded-2xl text-sm leading-relaxed"
               :class="msg.role === 'user'
                 ? 'bg-indigo-600 text-white rounded-br-sm'
@@ -78,7 +89,7 @@
 
           <!-- Typing indicator -->
           <div v-if="sending" class="flex justify-start">
-            <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 mr-2"
+            <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 mr-2 mt-1"
               :class="character?.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'"
             >
               <img v-if="character?.avatar_url" :src="character.avatar_url" class="w-full h-full object-cover" />
@@ -86,10 +97,13 @@
                 {{ character?.gender === 'female' ? '👩' : '👨' }}
               </span>
             </div>
-            <div class="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1">
-              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms" />
-              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms" />
-              <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms" />
+            <div class="space-y-1">
+              <div class="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1">
+                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms" />
+                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms" />
+                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms" />
+              </div>
+              <p v-if="generatingPhoto" class="text-[10px] text-gray-400 pl-1">{{ i18n.__('user.photo_generating') }}</p>
             </div>
           </div>
         </template>
@@ -119,6 +133,20 @@
       </div>
 
       <form @submit.prevent="sendMessage" class="flex items-end gap-2">
+        <!-- Photo request button -->
+        <button
+          type="button"
+          @click="showPhotoModal = true"
+          :disabled="sending || creditsRemaining === 0 || !character?.avatar_url"
+          class="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          :title="i18n.__('user.chat_photo_btn')"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+
         <button
           type="button"
           @click.stop="toggleEmojis"
@@ -164,7 +192,15 @@
     <!-- Pricing modal -->
     <PricingModal :show="showPricing" @close="showPricing = false" />
 
-    <!-- Photo lightbox -->
+    <!-- Photo request modal -->
+    <PhotoRequestModal
+      :show="showPhotoModal"
+      :image-cost="imageCost"
+      @close="showPhotoModal = false"
+      @select="requestPhoto"
+    />
+
+    <!-- Photo lightbox (avatar or generated image) -->
     <Transition
       enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
@@ -176,16 +212,16 @@
       <div
         v-if="photoOpen"
         class="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
-        @click="photoOpen = false"
+        @click="photoOpen = false; selectedPhoto = null"
       >
         <img
-          :src="character.avatar_url"
-          :alt="character.name"
+          :src="selectedPhoto ?? character?.avatar_url"
+          :alt="character?.name"
           class="max-h-full max-w-full rounded-2xl shadow-2xl object-contain"
           @click.stop
         />
         <button
-          @click="photoOpen = false"
+          @click="photoOpen = false; selectedPhoto = null"
           class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,6 +241,7 @@ import { useI18nStore } from '@/stores/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useChatStore } from '@/stores/chat'
 import PricingModal from '@/components/PricingModal.vue'
+import PhotoRequestModal from '@/components/PhotoRequestModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -254,11 +291,15 @@ function onDocMousedown(e) {
   }
 }
 const sending = ref(false)
+const generatingPhoto = ref(false)
+const showPhotoModal = ref(false)
 const clearing = ref(false)
 const loadingConversation = ref(true)
 const messagesEl = ref(null)
 const photoOpen = ref(false)
+const selectedPhoto = ref(null)
 const showPricing = ref(false)
+const imageCost = 5
 
 const creditsRemaining = ref(auth.user?.message_credits ?? 0)
 
@@ -362,6 +403,37 @@ async function clearChat() {
     messages.value = []
   } finally {
     clearing.value = false
+  }
+}
+
+async function requestPhoto(pose) {
+  showPhotoModal.value = false
+  if (sending.value) return
+
+  sending.value = true
+  generatingPhoto.value = true
+  await nextTick()
+  scrollToBottom()
+
+  try {
+    const { data } = await api.post(
+      `/api/user/conversations/${conversation.value.id}/images`,
+      { pose }
+    )
+    messages.value.push(data.image_message)
+    creditsRemaining.value = data.credits_remaining
+    if (auth.user) auth.user.message_credits = data.credits_remaining
+    await nextTick()
+    scrollToBottom()
+  } catch (e) {
+    if (e.response?.status === 402) {
+      creditsRemaining.value = 0
+      if (auth.user) auth.user.message_credits = 0
+      showPricing.value = true
+    }
+  } finally {
+    sending.value = false
+    generatingPhoto.value = false
   }
 }
 

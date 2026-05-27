@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'currency' => 'EUR',
+    'currency'      => 'EUR',
+    'image_credits' => 5,
 
     // Free message allowance for guest (no-account) users — smaller than the
     // registered default (20) to limit cookie-reset farming.

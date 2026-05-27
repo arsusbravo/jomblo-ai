@@ -64,4 +64,8 @@ return [
         'api_key' => env('BREVO_API_KEY'),
     ],
 
+    'fal' => [
+        'key' => env('FAL_KEY'),
+    ],
+
 ];

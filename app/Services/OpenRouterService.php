@@ -43,7 +43,7 @@ class OpenRouterService
             ['role' => 'system', 'content' => $systemPrompt],
         ];
 
-        foreach ($history as $msg) {
+        foreach ($history->where('type', 'text') as $msg) {
             $messages[] = ['role' => $msg->role, 'content' => $msg->content];
         }
 

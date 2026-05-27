@@ -67,13 +67,17 @@
             </div>
 
             <!-- Image bubble -->
-            <img
+            <div
               v-if="msg.type === 'image'"
-              :src="msg.content"
-              class="max-w-[70%] rounded-2xl rounded-bl-sm shadow-sm cursor-pointer object-cover"
-              style="max-height: 320px"
+              class="chat-photo-wrap rounded-2xl rounded-bl-sm overflow-hidden shadow-md cursor-pointer"
               @click="selectedPhoto = msg.content; photoOpen = true"
-            />
+            >
+              <img
+                :src="msg.content"
+                class="chat-photo w-full h-full object-cover"
+                @load="$event.target.classList.add('loaded')"
+              />
+            </div>
 
             <!-- Text bubble -->
             <div
@@ -468,3 +472,28 @@ function typingDelay(prevText) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 </script>
+
+<style scoped>
+.chat-photo-wrap {
+  width: 190px;
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 300% 100%;
+  animation: photo-shimmer 1.6s ease-in-out infinite;
+}
+
+.chat-photo {
+  opacity: 0;
+  transition: opacity 0.75s ease;
+  display: block;
+}
+
+.chat-photo.loaded {
+  opacity: 1;
+}
+
+@keyframes photo-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+</style>

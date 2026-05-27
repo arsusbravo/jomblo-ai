@@ -43,7 +43,7 @@ return [
     'photo_confirm_body'    => 'Fotos kosten je :credits Credits. Fortfahren?',
     'photo_confirm_yes'     => 'Ja, senden!',
     'photo_confirm_no'      => 'Abbrechen',
-    'photo_generating'        => 'Foto wird gesendet...',
+    'photo_generating'        => ':name macht gerade ein Foto für dich...',
     'photo_content_filtered'  => 'Diese Pose konnte für diesen Charakter nicht generiert werden. Es wurden keine Credits abgezogen — versuche eine andere Pose.',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Zwinkernd',

@@ -103,7 +103,7 @@
                 <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms" />
                 <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms" />
               </div>
-              <p v-if="generatingPhoto" class="text-[10px] text-gray-400 pl-1">{{ i18n.__('user.photo_generating') }}</p>
+              <p v-if="generatingPhoto" class="text-[10px] text-gray-400 pl-1">{{ i18n.__('user.photo_generating', { name: character?.name }) }}</p>
             </div>
           </div>
         </template>

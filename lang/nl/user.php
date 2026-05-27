@@ -43,7 +43,7 @@ return [
     'photo_confirm_body'    => 'Foto\'s kosten :credits credits per stuk. Doorgaan?',
     'photo_confirm_yes'     => 'Ja, stuur!',
     'photo_confirm_no'      => 'Annuleren',
-    'photo_generating'        => 'Foto wordt verzonden...',
+    'photo_generating'        => ':name is bezig een foto te maken...',
     'photo_content_filtered'  => 'Deze pose kon niet worden gegenereerd voor dit personage. Er zijn geen credits afgeschreven — probeer een andere pose.',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Knipogend',

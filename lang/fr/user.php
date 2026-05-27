@@ -43,7 +43,7 @@ return [
     'photo_confirm_body'    => 'Les photos coûtent :credits crédits chacune. Continuer ?',
     'photo_confirm_yes'     => 'Oui, envoyer !',
     'photo_confirm_no'      => 'Annuler',
-    'photo_generating'        => 'Photo en cours d\'envoi...',
+    'photo_generating'        => ':name est en train de prendre une photo pour vous...',
     'photo_content_filtered'  => 'Cette pose n\'a pas pu être générée pour ce personnage. Aucun crédit n\'a été débité — essayez une autre pose.',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Clin d\'œil',

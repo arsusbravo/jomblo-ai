@@ -47,7 +47,7 @@ return [
     'photo_confirm_body'    => 'Photos cost :credits credits each. Continue?',
     'photo_confirm_yes'     => 'Yes, send it!',
     'photo_confirm_no'      => 'Cancel',
-    'photo_generating'        => 'Sending photo...',
+    'photo_generating'        => ':name is taking a photo for you...',
     'photo_content_filtered'  => 'This pose couldn\'t be generated for this character. No credits were charged — try a different pose.',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Winking',

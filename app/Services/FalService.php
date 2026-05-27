@@ -35,6 +35,11 @@ class FalService
             throw new \RuntimeException('Image generation failed.');
         }
 
+        // Detect blacked-out images: fal.ai returns has_nsfw_concepts=true and blacks the image.
+        if ($response->json('has_nsfw_concepts.0') === true) {
+            throw new \RuntimeException('content_filtered');
+        }
+
         return $response->json('images.0.url');
     }
 }

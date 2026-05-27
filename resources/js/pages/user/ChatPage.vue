@@ -132,6 +132,10 @@
         </div>
       </div>
 
+      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <p v-if="photoError" class="text-xs text-orange-500 mb-2 px-1">{{ photoError }}</p>
+      </Transition>
+
       <form @submit.prevent="sendMessage" class="flex items-end gap-2">
         <!-- Photo request button -->
         <button
@@ -293,6 +297,7 @@ function onDocMousedown(e) {
 const sending = ref(false)
 const generatingPhoto = ref(false)
 const showPhotoModal = ref(false)
+const photoError = ref('')
 const clearing = ref(false)
 const loadingConversation = ref(true)
 const messagesEl = ref(null)
@@ -430,6 +435,9 @@ async function requestPhoto(pose) {
       creditsRemaining.value = 0
       if (auth.user) auth.user.message_credits = 0
       showPricing.value = true
+    } else if (e.response?.status === 422) {
+      photoError.value = i18n.__('user.photo_content_filtered')
+      setTimeout(() => { photoError.value = '' }, 5000)
     }
   } finally {
     sending.value = false

@@ -68,7 +68,14 @@ class ImageController extends Controller
             ? 'nude, naked, exposed genitals, explicit, pornographic, photograph, realistic, blurry, bad quality, watermark'
             : 'nude, naked, exposed genitals, explicit, pornographic, cartoon, blurry, bad quality, watermark';
 
-        $imageUrl = FalService::generateImage($imageRef, $prompt, $negative);
+        try {
+            $imageUrl = FalService::generateImage($imageRef, $prompt, $negative);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'content_filtered') {
+                return response()->json(['message' => 'content_filtered'], 422);
+            }
+            return response()->json(['message' => 'generation_failed'], 500);
+        }
 
         $message = $conversation->messages()->create([
             'role'    => 'assistant',

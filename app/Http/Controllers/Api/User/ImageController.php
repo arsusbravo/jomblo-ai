@@ -71,13 +71,15 @@ class ImageController extends Controller
 
         $poseText = $poseMap[$request->pose];
 
+        $bodyShape = 'curvy figure, full body proportions matching reference, same physique as reference image, voluptuous, thick thighs, full hips, maintaining original body shape';
+
         $prompt = $isAnime
-            ? "{$poseText}, anime illustration, detailed, vibrant colors, high quality"
-            : "{$poseText}, tasteful and sexy, photorealistic, high quality, 4k, professional photography";
+            ? "{$poseText}, {$bodyShape}, anime illustration, detailed, vibrant colors, high quality"
+            : "{$poseText}, {$bodyShape}, tasteful and sexy, photorealistic, high quality, 4k, professional photography";
 
         $negative = $isAnime
-            ? 'nude, naked, exposed genitals, explicit, pornographic, photograph, realistic, blurry, bad quality, watermark'
-            : 'nude, naked, exposed genitals, explicit, pornographic, cartoon, blurry, bad quality, watermark';
+            ? 'skinny, slim, thin, underweight, bony, petite figure, nude, naked, exposed genitals, explicit, pornographic, photograph, realistic, blurry, bad quality, watermark'
+            : 'skinny, slim, thin, underweight, bony, petite figure, nude, naked, exposed genitals, explicit, pornographic, cartoon, blurry, bad quality, watermark';
 
         try {
             $imageUrl = FalService::generateImage($imageRef, $prompt, $negative);

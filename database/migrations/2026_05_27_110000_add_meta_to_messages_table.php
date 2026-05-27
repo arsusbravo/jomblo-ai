@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->json('meta')->nullable()->after('content');
+            $table->longText('meta')->nullable()->after('content');
         });
     }
 

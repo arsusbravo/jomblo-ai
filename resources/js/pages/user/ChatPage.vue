@@ -111,12 +111,12 @@
     </div>
 
     <!-- Input -->
-    <div class="relative bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 py-4 shrink-0">
+    <div class="relative bg-white/90 backdrop-blur-md border-t border-gray-200 px-3 py-3 shrink-0">
       <!-- Emoji popover -->
       <div
         v-if="showEmojis"
         ref="emojiPopover"
-        class="absolute bottom-full left-4 mb-2 w-72 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-10"
+        class="absolute bottom-full left-3 mb-2 w-72 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-10"
       >
         <div v-for="group in emojiGroups" :key="group.label" class="mb-2 last:mb-0">
           <p class="text-[10px] uppercase tracking-wide text-gray-400 mb-1 px-1">{{ group.label }}</p>
@@ -137,55 +137,65 @@
       </Transition>
 
       <form @submit.prevent="sendMessage" class="flex items-end gap-2">
-        <!-- Photo request button -->
-        <button
-          type="button"
-          @click="showPhotoModal = true"
-          :disabled="sending || creditsRemaining === 0 || !character?.avatar_url"
-          class="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-          :title="i18n.__('user.chat_photo_btn')"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
 
-        <button
-          type="button"
-          @click.stop="toggleEmojis"
-          :disabled="sending || creditsRemaining === 0"
-          class="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-          aria-label="Insert emoji"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-        <textarea
-          ref="inputEl"
-          v-model="input"
-          @keydown.enter.exact.prevent="sendMessage"
-          rows="1"
-          :placeholder="creditsRemaining === 0 ? i18n.__('user.credits_empty') : i18n.__('user.chat_placeholder')"
-          :disabled="sending || creditsRemaining === 0"
-          class="flex-1 resize-none px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm disabled:opacity-60 max-h-32 overflow-y-auto"
-          style="field-sizing: content"
-          @click="creditsRemaining === 0 && (showPricing = true)"
-        />
+        <!-- Unified input pill: emoji + textarea + camera all in one container -->
+        <div class="flex-1 flex items-end bg-white border border-gray-200 rounded-2xl shadow-sm transition-all focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
+          <!-- Emoji button (inside pill, left) -->
+          <button
+            type="button"
+            @click.stop="toggleEmojis"
+            :disabled="sending || creditsRemaining === 0"
+            aria-label="Insert emoji"
+            class="p-3 text-gray-400 hover:text-indigo-500 transition-colors shrink-0 disabled:opacity-40"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+
+          <!-- Textarea -->
+          <textarea
+            ref="inputEl"
+            v-model="input"
+            @keydown.enter.exact.prevent="sendMessage"
+            rows="1"
+            :placeholder="creditsRemaining === 0 ? i18n.__('user.credits_empty') : i18n.__('user.chat_placeholder')"
+            :disabled="sending || creditsRemaining === 0"
+            class="flex-1 py-3 text-sm bg-transparent border-none focus:outline-none focus:ring-0 resize-none max-h-32 overflow-y-auto disabled:opacity-60"
+            style="field-sizing: content"
+            @click="creditsRemaining === 0 && (showPricing = true)"
+          />
+
+          <!-- Camera button (inside pill, right) -->
+          <button
+            type="button"
+            @click="showPhotoModal = true"
+            :disabled="sending || creditsRemaining === 0 || !character?.avatar_url"
+            :title="i18n.__('user.chat_photo_btn')"
+            class="p-3 text-gray-400 hover:text-indigo-500 transition-colors shrink-0 disabled:opacity-40"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Send button -->
         <button
           type="submit"
           :disabled="!input.trim() || sending || creditsRemaining === 0"
-          class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm"
         >
           <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         </button>
       </form>
-      <div class="flex items-center justify-between mt-2 px-1">
-        <p class="text-xs text-gray-400">{{ i18n.__('user.chat_hint') }}</p>
-        <p class="text-xs font-medium" :class="creditsColor">
+
+      <div class="flex items-center justify-between mt-1.5 px-1">
+        <p class="hidden sm:block text-xs text-gray-400">{{ i18n.__('user.chat_hint') }}</p>
+        <p class="text-xs font-medium ml-auto" :class="creditsColor">
           {{ creditsRemaining === 0
             ? i18n.__('user.credits_empty')
             : i18n.__('user.credits_remaining', { count: creditsRemaining }) }}
@@ -200,6 +210,7 @@
     <PhotoRequestModal
       :show="showPhotoModal"
       :image-cost="imageCost"
+      :category="character?.category"
       @close="showPhotoModal = false"
       @select="requestPhoto"
     />

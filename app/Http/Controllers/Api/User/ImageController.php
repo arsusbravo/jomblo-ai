@@ -11,13 +11,22 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
-    private const POSE_MAP = [
+    private const POSE_MAP_REALISTIC = [
         'seductive' => 'seductive gaze, bedroom eyes, flirty smile, alluring, close-up portrait',
         'lingerie'  => 'wearing lace lingerie, tasteful boudoir style, elegant and sensual',
         'bikini'    => 'wearing bikini, confident sexy pose, sun-kissed skin',
         'lying'     => 'lying on bed, sensual boudoir pose, looking at camera seductively',
         'backpose'  => 'looking seductively over shoulder, back pose, arched back, alluring',
         'boudoir'   => 'boudoir photography, sitting on bed, sensual lighting, elegant and sexy',
+    ];
+
+    private const POSE_MAP_ANIME = [
+        'selfie'   => 'close-up selfie, smiling at camera, cute expression',
+        'winking'  => 'playful wink, flirty smile, kawaii',
+        'shy'      => 'shy smile, blushing, looking slightly down',
+        'action'   => 'dynamic action pose, wind blowing hair, confident',
+        'sitting'  => 'sitting pose, legs crossed, cheerful',
+        'portrait' => 'close-up portrait, soft dreamy eyes, gentle smile',
     ];
 
     public function generate(Request $request, Conversation $conversation): JsonResponse
@@ -37,11 +46,14 @@ class ImageController extends Controller
             ], 402);
         }
 
-        $request->validate([
-            'pose' => ['required', 'string', 'in:seductive,lingerie,bikini,lying,backpose,boudoir'],
-        ]);
-
         $character = $conversation->character;
+        $isAnime   = $character->category === 'anime';
+        $poseMap   = $isAnime ? self::POSE_MAP_ANIME : self::POSE_MAP_REALISTIC;
+        $validKeys = implode(',', array_keys($poseMap));
+
+        $request->validate([
+            'pose' => ['required', 'string', 'in:' . $validKeys],
+        ]);
 
         if (! $character->avatar_path || ! Storage::disk('public')->exists($character->avatar_path)) {
             return response()->json(['message' => 'No avatar available.'], 422);
@@ -57,11 +69,10 @@ class ImageController extends Controller
             $imageRef = $character->avatar_url;
         }
 
-        $poseText = self::POSE_MAP[$request->pose];
-        $isAnime  = $character->category === 'anime';
+        $poseText = $poseMap[$request->pose];
 
         $prompt = $isAnime
-            ? "{$poseText}, tasteful and sexy, anime illustration, detailed, vibrant colors, high quality"
+            ? "{$poseText}, anime illustration, detailed, vibrant colors, high quality"
             : "{$poseText}, tasteful and sexy, photorealistic, high quality, 4k, professional photography";
 
         $negative = $isAnime

@@ -64,19 +64,20 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
 
 const props = defineProps({
-  show: Boolean,
+  show:      Boolean,
   imageCost: { type: Number, default: 5 },
+  category:  { type: String, default: 'realistic' },
 })
 
 const emit = defineEmits(['close', 'select'])
 
 const i18n = useI18nStore()
 
-const poses = [
+const realisticPoses = [
   { key: 'seductive', emoji: '😏', labelKey: 'pose_seductive' },
   { key: 'lingerie',  emoji: '🩱', labelKey: 'pose_lingerie' },
   { key: 'bikini',    emoji: '👙', labelKey: 'pose_bikini' },
@@ -84,6 +85,17 @@ const poses = [
   { key: 'backpose',  emoji: '💋', labelKey: 'pose_backpose' },
   { key: 'boudoir',   emoji: '🌹', labelKey: 'pose_boudoir' },
 ]
+
+const animePoses = [
+  { key: 'selfie',   emoji: '🤳', labelKey: 'pose_selfie' },
+  { key: 'winking',  emoji: '😉', labelKey: 'pose_winking' },
+  { key: 'shy',      emoji: '🥺', labelKey: 'pose_shy' },
+  { key: 'action',   emoji: '⚡', labelKey: 'pose_action' },
+  { key: 'sitting',  emoji: '🪑', labelKey: 'pose_sitting' },
+  { key: 'portrait', emoji: '🌸', labelKey: 'pose_portrait' },
+]
+
+const poses = computed(() => props.category === 'anime' ? animePoses : realisticPoses)
 
 const SESSION_KEY = 'photoConfirmed'
 const showConfirm = ref(false)

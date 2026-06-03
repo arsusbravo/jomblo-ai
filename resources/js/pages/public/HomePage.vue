@@ -81,6 +81,40 @@
       </div>
     </section>
 
+    <!-- How it works -->
+    <section class="py-16 bg-linear-to-b from-gray-50 to-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-3">{{ i18n.__('public.how_title') }}</h2>
+        <p class="text-center text-gray-500 mb-12">{{ i18n.__('public.how_subtitle') }}</p>
+
+        <!-- Steps -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-14">
+          <div v-for="step in steps" :key="step.icon" class="flex flex-col items-center text-center p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-3xl mb-3">{{ step.icon }}</span>
+            <p class="font-semibold text-gray-900 mb-1">{{ step.title }}</p>
+            <p class="text-sm text-gray-500">{{ step.desc }}</p>
+          </div>
+        </div>
+
+        <!-- Level progression -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <p class="font-semibold text-gray-900 text-center">{{ i18n.__('public.how_levels_title') }}</p>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div v-for="level in levels" :key="level.name" class="flex items-center gap-4 px-6 py-4">
+              <div class="text-2xl w-10 text-center shrink-0">{{ level.icon }}</div>
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-900 text-sm">{{ level.name }}</p>
+                <p class="text-xs text-gray-500 mt-0.5">{{ level.desc }}</p>
+              </div>
+              <div class="text-xs font-medium text-indigo-500 shrink-0 text-right">{{ level.score }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- CTA -->
     <section class="bg-indigo-600 py-16">
       <div class="max-w-7xl mx-auto px-4 text-center">
@@ -112,8 +146,22 @@ onMounted(async () => {
 })
 
 const features = computed(() => [
-  { icon: '🤖', title: i18n.__('public.feature_ai_title'), description: i18n.__('public.feature_ai_desc') },
-  { icon: '🔒', title: i18n.__('public.feature_safe_title'), description: i18n.__('public.feature_safe_desc') },
-  { icon: '💬', title: i18n.__('public.feature_chat_title'), description: i18n.__('public.feature_chat_desc') },
+  { icon: '💘', title: i18n.__('public.feature_ai_title'), description: i18n.__('public.feature_ai_desc') },
+  { icon: '📸', title: i18n.__('public.feature_safe_title'), description: i18n.__('public.feature_safe_desc') },
+  { icon: '🧠', title: i18n.__('public.feature_chat_title'), description: i18n.__('public.feature_chat_desc') },
+])
+
+const steps = computed(() => [
+  { icon: '💬', title: i18n.__('public.how_step1_title'), desc: i18n.__('public.how_step1_desc') },
+  { icon: '📈', title: i18n.__('public.how_step2_title'), desc: i18n.__('public.how_step2_desc') },
+  { icon: '📸', title: i18n.__('public.how_step3_title'), desc: i18n.__('public.how_step3_desc') },
+])
+
+const levels = computed(() => [
+  { icon: '🌱', name: i18n.__('public.level0_name'), desc: i18n.__('public.level0_desc'), score: i18n.__('public.level_start') },
+  { icon: '🌸', name: i18n.__('public.level1_name'), desc: i18n.__('public.level1_desc'), score: '20 pts' },
+  { icon: '🔥', name: i18n.__('public.level2_name'), desc: i18n.__('public.level2_desc'), score: '50 pts' },
+  { icon: '💋', name: i18n.__('public.level3_name'), desc: i18n.__('public.level3_desc'), score: '100 pts' },
+  { icon: '❤️‍🔥', name: i18n.__('public.level4_name'), desc: i18n.__('public.level4_desc'), score: '200 pts' },
 ])
 </script>

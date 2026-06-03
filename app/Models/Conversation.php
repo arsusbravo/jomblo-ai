@@ -21,12 +21,13 @@ class Conversation extends Model
 
     public function relationshipLevel(): int
     {
+        $score = (int) $this->relationship_score;
         return match(true) {
-            $this->relationship_score >= 200 => 4,
-            $this->relationship_score >= 100 => 3,
-            $this->relationship_score >= 50  => 2,
-            $this->relationship_score >= 20  => 1,
-            default                          => 0,
+            $score >= 200 => 4,
+            $score >= 100 => 3,
+            $score >= 50  => 2,
+            $score >= 20  => 1,
+            default       => 0,
         };
     }
 

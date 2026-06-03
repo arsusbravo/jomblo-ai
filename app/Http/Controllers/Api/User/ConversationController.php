@@ -37,9 +37,9 @@ class ConversationController extends Controller
         return response()->json([
             'conversation'          => $conversation,
             'free_images_remaining' => $request->user()->freeImagesRemainingThisPeriod(),
-            'relationship_score'    => $conversation->relationship_score,
+            'relationship_score'    => (int) $conversation->relationship_score,
             'relationship_level'    => $conversation->relationshipLevel(),
-            'next_level_score'      => $this->nextLevelScore($conversation->relationship_score),
+            'next_level_score'      => $this->nextLevelScore((int) $conversation->relationship_score),
         ]);
     }
 

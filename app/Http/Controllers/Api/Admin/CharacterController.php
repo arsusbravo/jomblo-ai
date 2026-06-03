@@ -92,4 +92,78 @@ class CharacterController extends Controller
 
         return response()->json(['message' => 'Character deleted.']);
     }
+
+    public function export(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $characters = Character::orderBy('name')->get();
+
+        $payload = $characters->map(function (Character $char) {
+            $avatar = null;
+            if ($char->avatar_path && Storage::disk('public')->exists($char->avatar_path)) {
+                $fullPath = Storage::disk('public')->path($char->avatar_path);
+                $mime     = mime_content_type($fullPath);
+                $avatar   = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fullPath));
+            }
+            return [
+                'name'               => $char->name,
+                'gender'             => $char->gender,
+                'category'           => $char->category,
+                'description'        => $char->description,
+                'personality_prompt' => $char->personality_prompt,
+                'is_active'          => $char->is_active,
+                'avatar'             => $avatar,
+            ];
+        });
+
+        $json     = json_encode(['version' => 1, 'exported_at' => now()->toIso8601String(), 'characters' => $payload], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $filename = 'characters-' . now()->format('Y-m-d') . '.json';
+
+        return response()->streamDownload(fn () => print($json), $filename, ['Content-Type' => 'application/json']);
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:json,txt', 'max:51200'],
+        ]);
+
+        $content = file_get_contents($request->file('file')->path());
+        $data    = json_decode($content, true);
+
+        if (! is_array($data) || ! isset($data['characters']) || ! is_array($data['characters'])) {
+            return response()->json(['message' => 'Invalid file format.'], 422);
+        }
+
+        $imported = 0;
+        $skipped  = 0;
+
+        foreach ($data['characters'] as $char) {
+            if (empty($char['name']) || empty($char['personality_prompt']) || ! in_array($char['gender'] ?? '', ['male', 'female'])) {
+                $skipped++;
+                continue;
+            }
+
+            $avatarPath = null;
+            if (! empty($char['avatar']) && preg_match('/^data:(image\/[\w+]+);base64,(.+)$/s', $char['avatar'], $m)) {
+                $ext        = str_replace(['jpeg', 'svg+xml'], ['jpg', 'svg'], explode('/', $m[1])[1]);
+                $filename   = 'characters/' . uniqid('import_', true) . '.' . $ext;
+                Storage::disk('public')->put($filename, base64_decode($m[2]));
+                $avatarPath = $filename;
+            }
+
+            Character::create([
+                'name'               => $char['name'],
+                'gender'             => $char['gender'],
+                'category'           => in_array($char['category'] ?? '', ['anime', 'realistic']) ? $char['category'] : 'realistic',
+                'description'        => $char['description'] ?? '',
+                'personality_prompt' => $char['personality_prompt'],
+                'is_active'          => $char['is_active'] ?? true,
+                'avatar_path'        => $avatarPath,
+            ]);
+
+            $imported++;
+        }
+
+        return response()->json(['imported' => $imported, 'skipped' => $skipped]);
+    }
 }

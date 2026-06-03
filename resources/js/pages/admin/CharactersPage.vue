@@ -2,16 +2,48 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold text-gray-900">AI Characters</h2>
-      <button
-        @click="openCreate"
-        class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        Add Character
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- Import -->
+        <label
+          class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors cursor-pointer"
+          :class="importing ? 'opacity-50 pointer-events-none' : ''"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          {{ importing ? 'Importing...' : 'Import' }}
+          <input type="file" accept=".json" class="hidden" @change="handleImport" :disabled="importing" />
+        </label>
+        <!-- Export -->
+        <button
+          @click="handleExport"
+          :disabled="exporting"
+          class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors disabled:opacity-50"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          {{ exporting ? 'Exporting...' : 'Export' }}
+        </button>
+        <!-- Add -->
+        <button
+          @click="openCreate"
+          class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Character
+        </button>
+      </div>
     </div>
+
+    <!-- Import result toast -->
+    <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <div v-if="importResult" class="mb-4 px-4 py-3 rounded-lg text-sm font-medium" :class="importResult.error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'">
+        {{ importResult.message }}
+      </div>
+    </Transition>
 
     <!-- Category filter -->
     <div class="flex gap-2 mb-3">
@@ -318,6 +350,9 @@ watch(totalPages, (tp) => { if (currentPage.value > tp) currentPage.value = tp }
 const saving = ref(false)
 const errors = ref([])
 const deleteTarget = ref(null)
+const exporting = ref(false)
+const importing = ref(false)
+const importResult = ref(null)
 const avatarPreview = ref(null)
 const avatarFile = ref(null)
 
@@ -446,5 +481,43 @@ async function deleteCharacter() {
   await api.delete(`/api/admin/characters/${deleteTarget.value.id}`)
   characters.value = characters.value.filter(c => c.id !== deleteTarget.value.id)
   deleteTarget.value = null
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const { data } = await api.get('/api/admin/characters/export', { responseType: 'blob' })
+    const url  = URL.createObjectURL(data)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'characters-' + new Date().toISOString().slice(0, 10) + '.json'
+    link.click()
+    URL.revokeObjectURL(url)
+  } finally {
+    exporting.value = false
+  }
+}
+
+async function handleImport(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  event.target.value = ''
+
+  importing.value = true
+  importResult.value = null
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const { data } = await api.post('/api/admin/characters/import', formData)
+    importResult.value = { error: false, message: `Imported ${data.imported} character(s)${data.skipped ? `, skipped ${data.skipped}` : ''}.` }
+    await fetchCharacters()
+  } catch (e) {
+    importResult.value = { error: true, message: e.response?.data?.message ?? 'Import failed.' }
+  } finally {
+    importing.value = false
+    setTimeout(() => { importResult.value = null }, 5000)
+  }
 }
 </script>

@@ -55,6 +55,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
     Route::post('/users/{user}/credits', [AdminController::class, 'grantCredits']);
     Route::get('/characters', [AdminCharacterController::class, 'index']);
+    Route::get('/characters/export', [AdminCharacterController::class, 'export']);
+    Route::post('/characters/import', [AdminCharacterController::class, 'import']);
     Route::post('/characters', [AdminCharacterController::class, 'store']);
     Route::post('/characters/{character}', [AdminCharacterController::class, 'update']);
     Route::delete('/characters/{character}', [AdminCharacterController::class, 'destroy']);

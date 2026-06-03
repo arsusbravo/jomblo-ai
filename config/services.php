@@ -36,9 +36,10 @@ return [
     ],
 
     'openrouter' => [
-        'key' => env('OPENROUTER_KEY'),
-        'model' => env('AI_MODEL', 'deepseek/deepseek-v3-base:free'),
-        'endpoint' => env('OPENROUTER_ENDPOINT', 'https://openrouter.ai/api/v1/chat'),
+        'key'          => env('OPENROUTER_KEY'),
+        'model'        => env('AI_MODEL', 'deepseek/deepseek-v3-base:free'),
+        'memory_model' => env('MEMORY_MODEL', 'deepseek/deepseek-chat'),
+        'endpoint'     => env('OPENROUTER_ENDPOINT', 'https://openrouter.ai/api/v1/chat'),
     ],
 
     'turnstile' => [

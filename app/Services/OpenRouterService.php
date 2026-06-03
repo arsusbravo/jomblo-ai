@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Character;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -20,7 +21,7 @@ class OpenRouterService
         $this->endpoint = rtrim(config('services.openrouter.endpoint'), '/') . '/completions';
     }
 
-    public function sendMessage(Character $character, Collection $history, ?string $userName = null, ?string $userGender = null): string
+    public function sendMessage(Character $character, Collection $history, ?string $userName = null, ?string $userGender = null, ?User $user = null, ?string $systemNote = null): string
     {
         $name = trim((string) $userName) !== '' ? trim($userName) : 'you';
         $userGender = in_array($userGender, ['male', 'female'], true) ? $userGender : null;
@@ -38,6 +39,17 @@ class OpenRouterService
         ]);
 
         $systemPrompt .= "\n\n" . $this->orientationClause($character->gender, $userGender, $name);
+
+        if ($user !== null) {
+            $memoryContext = MemoryService::buildContext($user, $character);
+            if ($memoryContext !== '') {
+                $systemPrompt .= "\n\n" . $memoryContext;
+            }
+        }
+
+        if ($systemNote !== null) {
+            $systemPrompt .= "\n\n" . $systemNote;
+        }
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],
@@ -59,6 +71,11 @@ class OpenRouterService
         ];
 
         foreach ($history as $msg) {
+            // Skip photo offer UI messages — they have empty content and must not be sent to the AI.
+            if ($msg->meta['photo_offer'] ?? false) {
+                continue;
+            }
+
             if ($msg->type === 'image') {
                 $pose      = $msg->meta['pose'] ?? null;
                 $poseLabel = $pose ? ($poseLabels[$pose] ?? $pose) : 'a pose';

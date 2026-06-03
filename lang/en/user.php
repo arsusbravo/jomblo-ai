@@ -49,6 +49,7 @@ return [
     'photo_confirm_no'      => 'Cancel',
     'photo_generating'        => ':name is taking a photo for you...',
     'photo_content_filtered'  => 'This pose couldn\'t be generated for this character. No credits were charged — try a different pose.',
+    'photo_offer_label'       => 'Choose a pose to receive',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Winking',
     'pose_shy'       => 'Shy',

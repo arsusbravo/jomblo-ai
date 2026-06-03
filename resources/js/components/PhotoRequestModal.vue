@@ -68,9 +68,10 @@ import { ref, watch, computed } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
 
 const props = defineProps({
-  show:      Boolean,
-  imageCost: { type: Number, default: 5 },
-  category:  { type: String, default: 'realistic' },
+  show:           Boolean,
+  imageCost:      { type: Number, default: 5 },
+  category:       { type: String, default: 'realistic' },
+  availablePoses: { type: Array, default: null }, // null = show all
 })
 
 const emit = defineEmits(['close', 'select'])
@@ -95,7 +96,11 @@ const animePoses = [
   { key: 'portrait', emoji: '🌸', labelKey: 'pose_portrait' },
 ]
 
-const poses = computed(() => props.category === 'anime' ? animePoses : realisticPoses)
+const poses = computed(() => {
+  const all = props.category === 'anime' ? animePoses : realisticPoses
+  if (!props.availablePoses) return all
+  return all.filter(p => props.availablePoses.includes(p.key))
+})
 
 const SESSION_KEY = 'photoConfirmed'
 const showConfirm = ref(false)

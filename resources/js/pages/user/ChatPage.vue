@@ -29,6 +29,12 @@
         <div>
           <p class="font-semibold text-gray-900">{{ character.name }}</p>
           <p class="text-xs text-pink-400">{{ character.gender === 'female' ? i18n.__('user.chat_honey') : i18n.__('user.chat_babe') }}</p>
+          <div v-if="!loadingConversation" class="flex items-center gap-1.5 mt-0.5">
+            <div class="h-1 w-16 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-pink-400 rounded-full transition-all duration-700" :style="{ width: progressPercent + '%' }" />
+            </div>
+            <span class="text-[10px] text-gray-400">Lv.{{ relationshipLevel }}</span>
+          </div>
         </div>
       </div>
       <div v-else class="h-5 w-32 bg-gray-100 rounded animate-pulse" />
@@ -77,6 +83,23 @@
                 class="chat-photo w-full h-full object-cover"
                 @load="$event.target.classList.add('loaded')"
               />
+            </div>
+
+            <!-- Photo offer card -->
+            <div
+              v-else-if="msg.meta?.photo_offer"
+              class="max-w-[75%] bg-white border border-pink-100 rounded-2xl rounded-bl-sm shadow-sm p-3"
+            >
+              <p class="text-xs text-pink-500 font-medium mb-2">📸 {{ i18n.__('user.photo_offer_label') }}</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button
+                  v-for="pose in availablePosesForOffer(msg)"
+                  :key="pose.key"
+                  @click="requestPhoto(pose.key)"
+                  :disabled="sending"
+                  class="text-xs px-2.5 py-1 rounded-full border border-pink-200 text-pink-600 hover:bg-pink-50 active:scale-95 transition-all disabled:opacity-40"
+                >{{ pose.emoji }} {{ i18n.__('user.' + pose.labelKey) }}</button>
+              </div>
             </div>
 
             <!-- Text bubble -->
@@ -170,8 +193,8 @@
             @click="creditsRemaining === 0 && (showPricing = true)"
           />
 
-          <!-- Camera button (inside pill, right) -->
-          <div class="relative shrink-0">
+          <!-- Camera button (inside pill, right) — unlocks at relationship level 3 -->
+          <div v-show="relationshipLevel >= 3" class="relative shrink-0">
             <button
               type="button"
               @click="showPhotoModal = true"
@@ -223,7 +246,8 @@
       :show="showPhotoModal"
       :image-cost="imageCost"
       :category="character?.category"
-      @close="showPhotoModal = false"
+      :available-poses="photoOfferPoses"
+      @close="showPhotoModal = false; photoOfferPoses = null"
       @select="requestPhoto"
     />
 
@@ -329,8 +353,12 @@ const selectedPhoto = ref(null)
 const showPricing = ref(false)
 const imageCost = 5
 
-const creditsRemaining = ref(auth.user?.message_credits ?? 0)
+const creditsRemaining    = ref(auth.user?.message_credits ?? 0)
 const freeImagesRemaining = ref(null) // null = not on unlimited plan
+const relationshipScore   = ref(0)
+const relationshipLevel   = ref(0)
+const nextLevelScore      = ref(20)
+const photoOfferPoses     = ref(null) // set when opening modal from a photo_offer card
 
 const isUnlimited = computed(() => {
   const until = auth.user?.unlimited_until
@@ -347,6 +375,14 @@ const creditsColor = computed(() => {
   return 'text-gray-400'
 })
 
+const progressPercent = computed(() => {
+  if (!nextLevelScore.value) return 100
+  const thresholds = [0, 20, 50, 100, 200]
+  const from = thresholds[relationshipLevel.value] ?? 0
+  const to   = nextLevelScore.value
+  return Math.min(100, Math.round(((relationshipScore.value - from) / (to - from)) * 100))
+})
+
 onMounted(async () => {
   try {
     const { data } = await api.get(`/api/user/conversations/${route.params.characterId}`)
@@ -355,6 +391,9 @@ onMounted(async () => {
     messages.value = data.conversation.messages
     chatStore.conversationId = data.conversation.id
     freeImagesRemaining.value = data.free_images_remaining ?? null
+    relationshipScore.value   = data.relationship_score ?? 0
+    relationshipLevel.value   = data.relationship_level ?? 0
+    nextLevelScore.value      = data.next_level_score   ?? null
   } finally {
     loadingConversation.value = false
     await nextTick()
@@ -408,8 +447,18 @@ async function sendMessage() {
       scrollToBottom()
     }
 
-    creditsRemaining.value = data.credits_remaining
+    creditsRemaining.value  = data.credits_remaining
     if (auth.user) auth.user.message_credits = data.credits_remaining
+    if (data.relationship_score !== undefined) {
+      relationshipScore.value = data.relationship_score
+      relationshipLevel.value = data.relationship_level
+      nextLevelScore.value    = data.next_level_score
+    }
+    if (data.photo_offer_message) {
+      messages.value.push(data.photo_offer_message)
+      await nextTick()
+      scrollToBottom()
+    }
   } catch (e) {
     if (e.response?.status === 402) {
       creditsRemaining.value = 0
@@ -474,6 +523,34 @@ async function requestPhoto(pose) {
     sending.value = false
     generatingPhoto.value = false
   }
+}
+
+// Pose lists (mirrored from PhotoRequestModal) — used to render photo offer cards.
+const realisticPoses = [
+  { key: 'seductive', emoji: '😏', labelKey: 'pose_seductive' },
+  { key: 'lingerie',  emoji: '🩱', labelKey: 'pose_lingerie' },
+  { key: 'bikini',    emoji: '👙', labelKey: 'pose_bikini' },
+  { key: 'lying',     emoji: '🛌', labelKey: 'pose_lying' },
+  { key: 'backpose',  emoji: '💋', labelKey: 'pose_backpose' },
+  { key: 'boudoir',   emoji: '🌹', labelKey: 'pose_boudoir' },
+]
+const animePoses = [
+  { key: 'selfie',   emoji: '🤳', labelKey: 'pose_selfie' },
+  { key: 'winking',  emoji: '😉', labelKey: 'pose_winking' },
+  { key: 'shy',      emoji: '🥺', labelKey: 'pose_shy' },
+  { key: 'action',   emoji: '⚡', labelKey: 'pose_action' },
+  { key: 'sitting',  emoji: '🪑', labelKey: 'pose_sitting' },
+  { key: 'portrait', emoji: '🌸', labelKey: 'pose_portrait' },
+]
+
+function availablePosesForOffer(msg) {
+  const all = character.value?.category === 'anime' ? animePoses : realisticPoses
+  return all.filter(p => msg.meta?.available_poses?.includes(p.key))
+}
+
+function openPhotoOffer(poses) {
+  photoOfferPoses.value = poses
+  showPhotoModal.value  = true
 }
 
 function scrollToBottom() {

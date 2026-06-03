@@ -45,6 +45,7 @@ return [
     'photo_confirm_no'      => 'Annuleren',
     'photo_generating'        => ':name is bezig een foto te maken...',
     'photo_content_filtered'  => 'Deze pose kon niet worden gegenereerd voor dit personage. Er zijn geen credits afgeschreven — probeer een andere pose.',
+    'photo_offer_label'       => 'Kies een pose om te ontvangen',
     'pose_selfie'    => 'Selfie',
     'pose_winking'   => 'Knipogend',
     'pose_shy'       => 'Verlegen',

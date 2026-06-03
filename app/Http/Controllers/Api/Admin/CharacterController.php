@@ -97,23 +97,15 @@ class CharacterController extends Controller
     {
         $characters = Character::orderBy('name')->get();
 
-        $payload = $characters->map(function (Character $char) {
-            $avatar = null;
-            if ($char->avatar_path && Storage::disk('public')->exists($char->avatar_path)) {
-                $fullPath = Storage::disk('public')->path($char->avatar_path);
-                $mime     = mime_content_type($fullPath);
-                $avatar   = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fullPath));
-            }
-            return [
-                'name'               => $char->name,
-                'gender'             => $char->gender,
-                'category'           => $char->category,
-                'description'        => $char->description,
-                'personality_prompt' => $char->personality_prompt,
-                'is_active'          => $char->is_active,
-                'avatar'             => $avatar,
-            ];
-        });
+        $payload = $characters->map(fn (Character $char) => [
+            'name'               => $char->name,
+            'gender'             => $char->gender,
+            'category'           => $char->category,
+            'description'        => $char->description,
+            'personality_prompt' => $char->personality_prompt,
+            'is_active'          => $char->is_active,
+            'avatar_url'         => $char->avatar_url,
+        ]);
 
         $json     = json_encode(['version' => 1, 'exported_at' => now()->toIso8601String(), 'characters' => $payload], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $filename = 'characters-' . now()->format('Y-m-d') . '.json';
@@ -144,11 +136,18 @@ class CharacterController extends Controller
             }
 
             $avatarPath = null;
-            if (! empty($char['avatar']) && preg_match('/^data:(image\/[\w+]+);base64,(.+)$/s', $char['avatar'], $m)) {
-                $ext        = str_replace(['jpeg', 'svg+xml'], ['jpg', 'svg'], explode('/', $m[1])[1]);
-                $filename   = 'characters/' . uniqid('import_', true) . '.' . $ext;
-                Storage::disk('public')->put($filename, base64_decode($m[2]));
-                $avatarPath = $filename;
+            if (! empty($char['avatar_url'])) {
+                try {
+                    $contents = file_get_contents($char['avatar_url']);
+                    if ($contents !== false) {
+                        $ext        = pathinfo(parse_url($char['avatar_url'], PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
+                        $filename   = 'characters/' . uniqid('import_', true) . '.' . $ext;
+                        Storage::disk('public')->put($filename, $contents);
+                        $avatarPath = $filename;
+                    }
+                } catch (\Throwable) {
+                    // Avatar download failed — import character without avatar.
+                }
             }
 
             Character::create([

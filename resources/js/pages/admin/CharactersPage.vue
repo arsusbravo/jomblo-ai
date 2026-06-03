@@ -17,13 +17,12 @@
         <!-- Export -->
         <button
           @click="handleExport"
-          :disabled="exporting"
-          class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors disabled:opacity-50"
+          class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-indigo-400 hover:text-indigo-600 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          {{ exporting ? 'Exporting...' : 'Export' }}
+          Export
         </button>
         <!-- Add -->
         <button
@@ -350,7 +349,6 @@ watch(totalPages, (tp) => { if (currentPage.value > tp) currentPage.value = tp }
 const saving = ref(false)
 const errors = ref([])
 const deleteTarget = ref(null)
-const exporting = ref(false)
 const importing = ref(false)
 const importResult = ref(null)
 const avatarPreview = ref(null)
@@ -483,19 +481,8 @@ async function deleteCharacter() {
   deleteTarget.value = null
 }
 
-async function handleExport() {
-  exporting.value = true
-  try {
-    const { data } = await api.get('/api/admin/characters/export', { responseType: 'blob' })
-    const url  = URL.createObjectURL(data)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'characters-' + new Date().toISOString().slice(0, 10) + '.json'
-    link.click()
-    URL.revokeObjectURL(url)
-  } finally {
-    exporting.value = false
-  }
+function handleExport() {
+  window.location.href = '/api/admin/characters/export'
 }
 
 async function handleImport(event) {

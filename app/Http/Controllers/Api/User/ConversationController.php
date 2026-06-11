@@ -56,15 +56,19 @@ class ConversationController extends Controller
         }
 
         $request->validate([
-            'content' => ['required', 'string', 'max:4000'],
+            'messages'   => ['required', 'array', 'min:1', 'max:10'],
+            'messages.*' => ['required', 'string', 'max:4000'],
         ]);
 
         $isFirstMessage = $conversation->messages()->doesntExist();
+        $userMessages   = [];
 
-        $userMessage = $conversation->messages()->create([
-            'role'    => 'user',
-            'content' => $request->content,
-        ]);
+        foreach ($request->messages as $content) {
+            $userMessages[] = $conversation->messages()->create([
+                'role'    => 'user',
+                'content' => $content,
+            ]);
+        }
 
         if ($isFirstMessage) {
             $conversation->character()->increment('chatters_count');
@@ -86,7 +90,7 @@ class ConversationController extends Controller
             $streakBonus  = 0;
         }
 
-        $newScore     = $conversation->relationship_score + 1 + $streakBonus;
+        $newScore     = $conversation->relationship_score + count($request->messages) + $streakBonus;
         $currentLevel = $conversation->relationshipLevel();
         $newLevel     = $this->scoreToLevel($newScore);
         $levelCrossed = $newLevel > $currentLevel && $newLevel > $conversation->unlocked_photo_level;
@@ -184,7 +188,7 @@ class ConversationController extends Controller
         $fresh = $user->fresh();
 
         return response()->json([
-            'user_message'       => $userMessage,
+            'user_messages'      => $userMessages,
             'ai_messages'        => $aiMessages,
             'photo_offer_message' => $photoOfferMessage,
             'credits_remaining'  => $fresh->message_credits,

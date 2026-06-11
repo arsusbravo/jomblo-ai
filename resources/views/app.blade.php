@@ -27,6 +27,7 @@
     <meta name="twitter:image" content="{{ $ogImage }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <script>window.CHAT_DEBOUNCE_MS = {{ (int) env('CHAT_DEBOUNCE_MS', 3000) }};</script>
     @vite(['resources/js/main.js'])
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async></script>
     <!-- Google tag (gtag.js) -->

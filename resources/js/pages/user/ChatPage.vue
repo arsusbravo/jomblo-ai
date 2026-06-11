@@ -185,6 +185,7 @@
             ref="inputEl"
             v-model="input"
             @keydown.enter.exact.prevent="sendMessage"
+            @input="onTyping"
             rows="1"
             :placeholder="creditsRemaining === 0 ? i18n.__('user.credits_empty') : i18n.__('user.chat_placeholder')"
             :disabled="sending || creditsRemaining === 0"
@@ -341,9 +342,13 @@ function onDocMousedown(e) {
     showEmojis.value = false
   }
 }
-const sending = ref(false)
+const sending         = ref(false)
+const waitingForMore  = ref(false)
+const pendingMessages = ref([])
+let   debounceTimer   = null
+const DEBOUNCE_MS     = window.CHAT_DEBOUNCE_MS ?? 3000
 const generatingPhoto = ref(false)
-const showPhotoModal = ref(false)
+const showPhotoModal  = ref(false)
 const photoError = ref('')
 const clearing = ref(false)
 const loadingConversation = ref(true)
@@ -403,6 +408,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(debounceTimer)
+  if (pendingMessages.value.length) flushMessages()
   document.removeEventListener('mousedown', onDocMousedown)
   chatStore.conversationId = null
 })
@@ -414,40 +421,57 @@ watch(() => chatStore.pendingClear, async (val) => {
   }
 })
 
-async function sendMessage() {
+function onTyping() {
+  if (!waitingForMore.value) return
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(flushMessages, DEBOUNCE_MS)
+}
+
+function sendMessage() {
   const content = input.value.trim()
   if (!content || sending.value) return
-
-  if (creditsRemaining.value === 0) {
-    showPricing.value = true
-    return
-  }
+  if (creditsRemaining.value === 0) { showPricing.value = true; return }
 
   input.value = ''
-  sending.value = true
   showEmojis.value = false
 
-  messages.value.push({ id: Date.now(), role: 'user', content })
-  await nextTick()
-  scrollToBottom()
+  pendingMessages.value.push(content)
+  messages.value.push({ id: null, role: 'user', content, type: 'text', meta: null })
+  nextTick().then(scrollToBottom)
+
+  waitingForMore.value = true
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(flushMessages, DEBOUNCE_MS)
+}
+
+async function flushMessages() {
+  if (!pendingMessages.value.length) return
+
+  waitingForMore.value = false
+  sending.value = true
+
+  const batch = [...pendingMessages.value]
+  pendingMessages.value = []
 
   try {
     const { data } = await api.post(
       `/api/user/conversations/${conversation.value.id}/messages`,
-      { content }
+      { messages: batch }
     )
-    const idx = messages.value.findLastIndex(m => m.role === 'user')
-    if (idx !== -1) messages.value[idx] = data.user_message
 
-    const parts = data.ai_messages
-    for (let i = 0; i < parts.length; i++) {
-      if (i > 0) await typingDelay(parts[i - 1].content)
-      messages.value.push(parts[i])
+    // Replace optimistic bubbles (id: null) with server-confirmed ones
+    messages.value = messages.value.filter(m => !(m.role === 'user' && m.id === null))
+    for (const msg of data.user_messages) messages.value.push(msg)
+
+    // AI reply bubbles with typing delay between them
+    for (let i = 0; i < data.ai_messages.length; i++) {
+      if (i > 0) await typingDelay(data.ai_messages[i - 1].content)
+      messages.value.push(data.ai_messages[i])
       await nextTick()
       scrollToBottom()
     }
 
-    creditsRemaining.value  = data.credits_remaining
+    creditsRemaining.value = data.credits_remaining
     if (auth.user) auth.user.message_credits = data.credits_remaining
     if (data.relationship_score !== undefined) {
       relationshipScore.value = data.relationship_score
@@ -460,19 +484,17 @@ async function sendMessage() {
       scrollToBottom()
     }
   } catch (e) {
+    messages.value = messages.value.filter(m => !(m.role === 'user' && m.id === null))
     if (e.response?.status === 402) {
       creditsRemaining.value = 0
       if (auth.user) auth.user.message_credits = 0
       showPricing.value = true
     }
-    messages.value.pop()
-    input.value = content
+    input.value = batch.join('\n\n')
   } finally {
     sending.value = false
     await nextTick()
     scrollToBottom()
-    // On desktop (mouse/trackpad) refocus the input so the user can keep typing.
-    // On mobile/tablet we skip this — auto-focus pops the keyboard and hides the reply.
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       inputEl.value?.focus()
     }

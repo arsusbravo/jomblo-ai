@@ -40,6 +40,8 @@ class OpenRouterService
 
         $systemPrompt .= "\n\n" . $this->orientationClause($character->gender, $userGender, $name);
 
+        $systemPrompt .= "\n\n[Today's date: " . now()->format('l, j F Y') . "]";
+
         if ($user !== null) {
             $memoryContext = MemoryService::buildContext($user, $character);
             if ($memoryContext !== '') {

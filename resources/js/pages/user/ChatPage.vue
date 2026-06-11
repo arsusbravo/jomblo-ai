@@ -449,6 +449,8 @@ async function flushMessages() {
 
   waitingForMore.value = false
   sending.value = true
+  await nextTick()
+  scrollToBottom()
 
   const batch = [...pendingMessages.value]
   pendingMessages.value = []

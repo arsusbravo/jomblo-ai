@@ -16,7 +16,8 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div v-if="loading" class="p-8 text-center text-gray-500">Loading users...</div>
 
-      <table v-else class="w-full text-sm">
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-sm min-w-160">
         <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
             <th class="text-left px-6 py-3 text-gray-600 font-medium">Name</th>
@@ -66,7 +67,8 @@
             </td>
           </tr>
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
 
     <!-- Create / Edit Modal -->

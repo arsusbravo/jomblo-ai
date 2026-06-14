@@ -115,7 +115,7 @@ async function handleLogin() {
   error.value = ''
   loading.value = true
   try {
-    await auth.login({ ...form.value, cf_turnstile_response: turnstileToken.value })
+    await auth.login({ ...form.value, remember: true, cf_turnstile_response: turnstileToken.value })
     router.push(auth.isAdmin ? { name: 'admin.dashboard' } : { name: 'user.dashboard' })
   } catch {
     error.value = i18n.__('auth.error_invalid')

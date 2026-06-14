@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Admin\CharacterController as AdminCharacterController;
 use App\Http\Controllers\Api\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Api\Auth\TokenAuthController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\LangController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\UserController;
@@ -23,6 +25,21 @@ Route::get('/lang/{locale}', [LangController::class, 'show']);
 
 // Stripe webhook — public, server-to-server (signature-verified inside the controller)
 Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
+
+// Token-based auth for the native mobile app (Bearer tokens, no session cookie).
+// The web SPA keeps using the cookie auth in routes/auth.php — both share /api/* below.
+Route::prefix('auth')->group(function () {
+    Route::post('/login',    [TokenAuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/register', [TokenAuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('/guest',    [TokenAuthController::class, 'guest'])->middleware('throttle:guest-register');
+    Route::post('/google',   [TokenAuthController::class, 'google'])->middleware('throttle:10,1');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/upgrade',      [TokenAuthController::class, 'upgrade']);
+        Route::post('/logout',       [TokenAuthController::class, 'logout']);
+        Route::post('/email/resend', [EmailVerificationNotificationController::class, 'store']);
+    });
+});
 
 // Authenticated user info — auth:sanctum ensures correct guard; exception handler returns null (not 401) for guests
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -59,6 +76,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/characters/import', [AdminCharacterController::class, 'import']);
     Route::post('/characters', [AdminCharacterController::class, 'store']);
     Route::post('/characters/{character}', [AdminCharacterController::class, 'update']);
+    Route::post('/characters/{character}/translations', [AdminCharacterController::class, 'saveTranslation']);
+    Route::delete('/characters/{character}/translations/{locale}', [AdminCharacterController::class, 'deleteTranslation']);
     Route::delete('/characters/{character}', [AdminCharacterController::class, 'destroy']);
     Route::get('/contact', [AdminContactController::class, 'index']);
     Route::get('/contact/unread', [AdminContactController::class, 'unreadCount']);

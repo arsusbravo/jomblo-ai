@@ -14,7 +14,7 @@ class CharacterController extends Controller
     {
         // chatters_count is now a persistent column on characters (incremented
         // the first time a user sends a message), so no withCount needed.
-        $characters = Character::orderBy('name')->get();
+        $characters = Character::with('translations')->orderBy('name')->get();
 
         return response()->json(['characters' => $characters]);
     }
@@ -93,9 +93,35 @@ class CharacterController extends Controller
         return response()->json(['message' => 'Character deleted.']);
     }
 
+    public function saveTranslation(Request $request, Character $character): JsonResponse
+    {
+        $request->validate([
+            'locale'             => ['required', 'in:en,nl,fr,de'],
+            'description'        => ['required', 'string'],
+            'personality_prompt' => ['required', 'string'],
+        ]);
+
+        $translation = $character->translations()->updateOrCreate(
+            ['locale' => $request->locale],
+            [
+                'description'        => $request->description,
+                'personality_prompt' => $request->personality_prompt,
+            ]
+        );
+
+        return response()->json(['translation' => $translation]);
+    }
+
+    public function deleteTranslation(Character $character, string $locale): JsonResponse
+    {
+        $character->translations()->where('locale', $locale)->delete();
+
+        return response()->json(['message' => 'Translation deleted.']);
+    }
+
     public function export(): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        $characters = Character::orderBy('name')->get();
+        $characters = Character::with('translations')->orderBy('name')->get();
 
         $payload = $characters->map(fn (Character $char) => [
             'name'               => $char->name,
@@ -105,6 +131,11 @@ class CharacterController extends Controller
             'personality_prompt' => $char->personality_prompt,
             'is_active'          => $char->is_active,
             'avatar_url'         => $char->avatar_url,
+            'translations'       => $char->translations->map(fn ($t) => [
+                'locale'             => $t->locale,
+                'description'        => $t->description,
+                'personality_prompt' => $t->personality_prompt,
+            ])->values(),
         ]);
 
         $json     = json_encode(['version' => 1, 'exported_at' => now()->toIso8601String(), 'characters' => $payload], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -150,7 +181,7 @@ class CharacterController extends Controller
                 }
             }
 
-            Character::create([
+            $newCharacter = Character::create([
                 'name'               => $char['name'],
                 'gender'             => $char['gender'],
                 'category'           => in_array($char['category'] ?? '', ['anime', 'realistic']) ? $char['category'] : 'realistic',
@@ -159,6 +190,21 @@ class CharacterController extends Controller
                 'is_active'          => $char['is_active'] ?? true,
                 'avatar_path'        => $avatarPath,
             ]);
+
+            if (! empty($char['translations']) && is_array($char['translations'])) {
+                foreach ($char['translations'] as $t) {
+                    if (empty($t['locale']) || ! in_array($t['locale'], ['en', 'nl', 'fr', 'de'])) {
+                        continue;
+                    }
+                    $newCharacter->translations()->updateOrCreate(
+                        ['locale' => $t['locale']],
+                        [
+                            'description'        => $t['description'] ?? '',
+                            'personality_prompt' => $t['personality_prompt'] ?? '',
+                        ]
+                    );
+                }
+            }
 
             $imported++;
         }

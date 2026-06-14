@@ -32,7 +32,8 @@ class ConversationController extends Controller
             'character_id' => $character->id,
         ]);
 
-        $conversation->load(['character', 'messages']);
+        $conversation->load(['character.translations', 'messages']);
+        $conversation->character->applyLocale();
 
         return response()->json([
             'conversation'          => $conversation,
@@ -108,6 +109,8 @@ class ConversationController extends Controller
             ->get()
             ->reverse()
             ->values();
+
+        $conversation->load('character.translations');
 
         $aiText = app(OpenRouterService::class)->sendMessage(
             $conversation->character,

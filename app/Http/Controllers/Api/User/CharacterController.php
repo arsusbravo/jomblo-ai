@@ -10,9 +10,11 @@ class CharacterController extends Controller
 {
     public function index(): JsonResponse
     {
-        $characters = Character::where('is_active', true)
+        $characters = Character::with('translations')
+            ->where('is_active', true)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->each->applyLocale();
 
         return response()->json(['characters' => $characters]);
     }

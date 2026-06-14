@@ -229,26 +229,62 @@
             </select>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-gray-400 font-normal">(shown to users)</span></label>
-            <textarea
-              v-model="form.description"
-              required
-              rows="2"
-              placeholder="A short description shown on the character selection screen..."
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-            />
-          </div>
+          <!-- Language tabs (description + prompt are per-language) -->
+          <div class="border border-gray-200 rounded-xl overflow-hidden">
+            <div class="flex bg-gray-50 border-b border-gray-200">
+              <button
+                v-for="tab in localeTabs"
+                :key="tab.code"
+                type="button"
+                @click="activeLocale = tab.code"
+                class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors border-r border-gray-200 last:border-r-0"
+                :class="activeLocale === tab.code
+                  ? 'bg-white text-indigo-600'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
+              >
+                <span>{{ tab.flag }}</span>
+                <span>{{ tab.label }}</span>
+                <span v-if="localeHasContent(tab.code)" class="text-green-500 text-xs">✓</span>
+              </button>
+            </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Personality Prompt <span class="text-gray-400 font-normal">(sent to AI as system prompt)</span></label>
-            <textarea
-              v-model="form.personality_prompt"
-              required
-              rows="5"
-              placeholder="You are Sophia, a warm and caring companion who loves deep conversations..."
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none font-mono text-sm"
-            />
+            <div class="p-4 space-y-4">
+              <p v-if="activeLocale !== 'nl'" class="text-xs text-gray-400 -mt-1">
+                Optional translation for {{ localeTabs.find(t => t.code === activeLocale)?.label }}. Leave empty to fall back to the default (NL).
+              </p>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-gray-400 font-normal">(shown to users)</span></label>
+                <textarea
+                  v-model="editingDescription"
+                  rows="2"
+                  placeholder="A short description shown on the character selection screen..."
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-sm font-medium text-gray-700">Personality Prompt <span class="text-gray-400 font-normal">(sent to AI as system prompt)</span></label>
+                  <button
+                    type="button"
+                    @click="showPromptEditor = true"
+                    class="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Fullscreen
+                  </button>
+                </div>
+                <textarea
+                  v-model="editingPrompt"
+                  rows="12"
+                  placeholder="You are Sophia, a warm and caring companion who loves deep conversations..."
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y font-mono text-sm leading-relaxed"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="flex items-center gap-3">
@@ -287,6 +323,37 @@
         </form>
       </div>
     </div>
+
+    <!-- Fullscreen Prompt Editor -->
+    <Teleport to="body">
+      <div v-if="showPromptEditor" class="fixed inset-0 z-70 bg-gray-950 flex flex-col">
+        <div class="flex items-center justify-between px-5 py-3 bg-gray-900 border-b border-gray-700 shrink-0">
+          <div>
+            <p class="text-white font-semibold text-sm">Personality Prompt — {{ activeLocale.toUpperCase() }}</p>
+            <p class="text-gray-400 text-xs mt-0.5">{{ form.name || 'Character' }} — changes save automatically when you close</p>
+          </div>
+          <button
+            type="button"
+            @click="showPromptEditor = false"
+            class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Done
+          </button>
+        </div>
+        <textarea
+          v-model="editingPrompt"
+          class="flex-1 w-full bg-gray-950 text-gray-100 font-mono text-sm leading-7 p-6 resize-none focus:outline-none"
+          placeholder="You are Sophia..."
+          spellcheck="false"
+        />
+        <div class="px-5 py-2 bg-gray-900 border-t border-gray-700 shrink-0">
+          <p class="text-gray-500 text-xs">{{ (editingPrompt || '').length }} characters · {{ (editingPrompt || '').split('\n').length }} lines</p>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- Delete Modal -->
     <div v-if="deleteTarget" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -349,6 +416,7 @@ watch(totalPages, (tp) => { if (currentPage.value > tp) currentPage.value = tp }
 const saving = ref(false)
 const errors = ref([])
 const deleteTarget = ref(null)
+const showPromptEditor = ref(false)
 const importing = ref(false)
 const importResult = ref(null)
 const avatarPreview = ref(null)
@@ -363,6 +431,36 @@ const form = reactive({
   personality_prompt: '',
   is_active: true,
 })
+
+// Per-language content. 'nl' lives on the base `form`; others live here.
+const localeTabs = [
+  { code: 'nl', flag: '🇳🇱', label: 'NL' },
+  { code: 'en', flag: '🇬🇧', label: 'EN' },
+  { code: 'fr', flag: '🇫🇷', label: 'FR' },
+  { code: 'de', flag: '🇩🇪', label: 'DE' },
+]
+const activeLocale = ref('nl')
+const emptyTranslations = () => ({
+  en: { description: '', personality_prompt: '' },
+  fr: { description: '', personality_prompt: '' },
+  de: { description: '', personality_prompt: '' },
+})
+const translations = reactive(emptyTranslations())
+
+const editingDescription = computed({
+  get: () => activeLocale.value === 'nl' ? form.description : translations[activeLocale.value].description,
+  set: (v) => { activeLocale.value === 'nl' ? (form.description = v) : (translations[activeLocale.value].description = v) },
+})
+const editingPrompt = computed({
+  get: () => activeLocale.value === 'nl' ? form.personality_prompt : translations[activeLocale.value].personality_prompt,
+  set: (v) => { activeLocale.value === 'nl' ? (form.personality_prompt = v) : (translations[activeLocale.value].personality_prompt = v) },
+})
+
+function localeHasContent(code) {
+  if (code === 'nl') return !!(form.description || form.personality_prompt)
+  const t = translations[code]
+  return !!(t.description || t.personality_prompt)
+}
 
 onMounted(fetchCharacters)
 
@@ -381,6 +479,8 @@ function openCreate() {
   modal.editing = false
   modal.characterId = null
   Object.assign(form, { name: '', gender: 'female', category: 'realistic', description: '', personality_prompt: '', is_active: true })
+  Object.assign(translations, emptyTranslations())
+  activeLocale.value = 'nl'
   avatarPreview.value = null
   avatarFile.value = null
   errors.value = []
@@ -398,6 +498,14 @@ function openEdit(character) {
     personality_prompt: character.personality_prompt,
     is_active: character.is_active,
   })
+  Object.assign(translations, emptyTranslations())
+  for (const t of character.translations ?? []) {
+    if (translations[t.locale]) {
+      translations[t.locale].description = t.description ?? ''
+      translations[t.locale].personality_prompt = t.personality_prompt ?? ''
+    }
+  }
+  activeLocale.value = 'nl'
   avatarPreview.value = character.avatar_url
   avatarFile.value = null
   errors.value = []
@@ -435,6 +543,20 @@ function compressImage(file, maxPx, quality) {
 
 async function handleSubmit() {
   errors.value = []
+
+  // Validate translation tabs up front (before any save) — a locale needs BOTH
+  // fields or neither. This avoids creating a base character then failing partway.
+  for (const code of ['en', 'fr', 'de']) {
+    const t = translations[code]
+    const hasOne = !!(t.description?.trim() || t.personality_prompt?.trim())
+    const hasBoth = !!(t.description?.trim() && t.personality_prompt?.trim())
+    if (hasOne && !hasBoth) {
+      errors.value = [`${code.toUpperCase()} translation needs both a description and a prompt (or leave both empty).`]
+      activeLocale.value = code
+      return
+    }
+  }
+
   saving.value = true
 
   const formData = new FormData()
@@ -449,14 +571,39 @@ async function handleSubmit() {
   }
 
   try {
+    let characterId
+    let savedCharacter
+
     if (modal.editing) {
       const { data } = await api.post(`/api/admin/characters/${modal.characterId}`, formData)
-      const idx = characters.value.findIndex(c => c.id === modal.characterId)
-      // update endpoint doesn't return chatters_count — keep the existing value
-      if (idx !== -1) characters.value[idx] = { ...data.character, chatters_count: characters.value[idx].chatters_count ?? 0 }
+      characterId = modal.characterId
+      savedCharacter = data.character
     } else {
       const { data } = await api.post('/api/admin/characters', formData)
-      characters.value.unshift({ ...data.character, chatters_count: 0 })
+      characterId = data.character.id
+      savedCharacter = data.character
+    }
+
+    // Save per-language translations (completeness already validated above).
+    const savedTranslations = []
+    for (const code of ['en', 'fr', 'de']) {
+      const t = translations[code]
+      if (!t.description?.trim()) continue
+      await api.post(`/api/admin/characters/${characterId}/translations`, {
+        locale: code,
+        description: t.description,
+        personality_prompt: t.personality_prompt,
+      })
+      savedTranslations.push({ locale: code, description: t.description, personality_prompt: t.personality_prompt })
+    }
+    savedCharacter.translations = savedTranslations
+
+    if (modal.editing) {
+      const idx = characters.value.findIndex(c => c.id === modal.characterId)
+      // update endpoint doesn't return chatters_count — keep the existing value
+      if (idx !== -1) characters.value[idx] = { ...savedCharacter, chatters_count: characters.value[idx].chatters_count ?? 0 }
+    } else {
+      characters.value.unshift({ ...savedCharacter, chatters_count: 0 })
     }
     closeModal()
   } catch (e) {

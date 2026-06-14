@@ -35,4 +35,32 @@ class Character extends Model
     {
         return $this->hasMany(Conversation::class);
     }
+
+    public function translations()
+    {
+        return $this->hasMany(CharacterTranslation::class);
+    }
+
+    /** Resolve localized fields, falling back to the base row. */
+    public function localized(?string $locale = null): array
+    {
+        $locale = $locale ?: app()->getLocale();
+        $t = $this->relationLoaded('translations')
+            ? $this->translations->firstWhere('locale', $locale)
+            : $this->translations()->where('locale', $locale)->first();
+
+        return [
+            'description'        => $t->description ?? $this->description,
+            'personality_prompt' => $t->personality_prompt ?? $this->personality_prompt,
+        ];
+    }
+
+    /** Overwrite description with the localized value for user-facing JSON; hide prompt + translations. */
+    public function applyLocale(?string $locale = null): static
+    {
+        $l = $this->localized($locale);
+        $this->description = $l['description'];
+        $this->makeHidden(['personality_prompt', 'translations']);
+        return $this;
+    }
 }

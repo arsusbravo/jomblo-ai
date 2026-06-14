@@ -32,7 +32,9 @@ class OpenRouterService
             default  => 'partner',
         };
 
-        $systemPrompt = strtr($character->personality_prompt, [
+        $prompt = $character->localized()['personality_prompt'];
+
+        $systemPrompt = strtr($prompt, [
             '{user_name}'   => $name,
             '{user_gender}' => $userGender ?? '',
             '{user_role}'   => $userRole,

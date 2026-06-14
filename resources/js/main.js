@@ -1,3 +1,6 @@
+import { registerSW } from 'virtual:pwa-register'
+registerSW({ onNeedRefresh() {}, onOfflineReady() {} })
+
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
